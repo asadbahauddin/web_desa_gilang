@@ -29,7 +29,7 @@ function login($username, $password)
                 'id'       => $user['id'],
                 'username' => $user['username'],
                 'nama'     => $user['nama_lengkap'],
-                'peran'    => $user['peran']
+                'peran'    => $user['peran'] ?? 'Administrator'
             ];
             return true;
         }
