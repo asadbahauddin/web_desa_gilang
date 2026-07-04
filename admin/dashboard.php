@@ -15,7 +15,11 @@ $inisial   = strtoupper(substr($namaParts[0], 0, 1) . (isset($namaParts[1]) ? su
 
 // Statistik
 function countTable($db, $tabel) {
-    $r = $db->query("SELECT COUNT(*) AS total FROM `$tabel`");
+    try {
+        $r = $db->query("SELECT COUNT(*) AS total FROM `$tabel`");
+    } catch (mysqli_sql_exception $e) {
+        return 0;
+    }
     return $r ? (int)$r->fetch_assoc()['total'] : 0;
 }
 
