@@ -1,8 +1,8 @@
 <?php
 // ============================================================
-//  Koneksi DB — sesuaikan dengan config proyekmu
+//  Koneksi DB
 // ============================================================
-// require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db.php';
+require_once __DIR__ . '/../../config/database.php';
 
 // ============================================================
 //  Konfigurasi halaman
@@ -12,7 +12,7 @@ $page = [
   'description' => 'Susunan pemerintahan Desa Gilang dalam menjalankan pelayanan dan pembangunan desa.',
   'eyebrow'     => 'PROFIL DESA',
   'heading'     => 'Struktur Organisasi',
-  'favicon'     => '/assets/logo/logo-desa.png',
+  'favicon'     => '/assets/logo/logo-desa.jpg',
 ];
 
 $breadcrumb = [
@@ -34,41 +34,14 @@ $cta = [
 ];
 
 // ============================================================
-//  Data aparatur — ganti dengan query DB nanti
-//
-//  Contoh query PDO:
-//
-//  $stmt = $pdo->query("
-//    SELECT nama, jabatan, foto
-//    FROM aparatur_desa
-//    WHERE aktif = 1
-//    ORDER BY urutan ASC
-//  ");
-//  $aparatur = $stmt->fetchAll(PDO::FETCH_ASSOC);
-//
-//  $kades  = array_values(array_filter($aparatur, fn($a) => $a['jabatan'] === 'Kepala Desa'))[0]  ?? null;
-//  $sekdes = array_values(array_filter($aparatur, fn($a) => $a['jabatan'] === 'Sekretaris Desa'))[0] ?? null;
-//  $staf   = array_values(array_filter($aparatur, fn($a) => !in_array($a['jabatan'], ['Kepala Desa', 'Sekretaris Desa'])));
+//  Data aparatur — query DB asli
 // ============================================================
+$result   = mysqli_query($conn, "SELECT nama, jabatan, foto FROM aparatur WHERE status = 'aktif' ORDER BY jabatan ASC");
+$aparatur = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 
-$kades = [
-  'nama'    => 'Suwarno, S.Sos.',
-  'jabatan' => 'Kepala Desa',
-  'foto'    => 'https://picsum.photos/seed/kepala/300/300',
-];
-
-$sekdes = [
-  'nama'    => 'Siti Aminah',
-  'jabatan' => 'Sekretaris Desa',
-  'foto'    => 'https://picsum.photos/seed/sekdes/300/300',
-];
-
-$staf = [
-  ['nama' => 'Ahmad Fauzi',   'jabatan' => 'Kaur Umum',          'foto' => 'https://picsum.photos/seed/kaur1/300/300'],
-  ['nama' => 'Nur Aisyah',    'jabatan' => 'Kaur Keuangan',      'foto' => 'https://picsum.photos/seed/kaur2/300/300'],
-  ['nama' => 'Rudi Hartono',  'jabatan' => 'Kasi Pemerintahan',  'foto' => 'https://picsum.photos/seed/kasi1/300/300'],
-  ['nama' => 'Indah Lestari', 'jabatan' => 'Kasi Kesejahteraan', 'foto' => 'https://picsum.photos/seed/kasi2/300/300'],
-];
+$kades  = array_values(array_filter($aparatur, fn($a) => $a['jabatan'] === 'Kepala Desa'))[0]  ?? null;
+$sekdes = array_values(array_filter($aparatur, fn($a) => $a['jabatan'] === 'Sekretaris Desa'))[0] ?? null;
+$staf   = array_values(array_filter($aparatur, fn($a) => !in_array($a['jabatan'], ['Kepala Desa', 'Sekretaris Desa'])));
 
 // ============================================================
 //  Helper — render satu kartu aparatur
@@ -76,11 +49,14 @@ $staf = [
 function render_org_card(array $person, string $extra_class = '', string $loading = 'lazy'): void {
   $nama    = htmlspecialchars($person['nama']);
   $jabatan = htmlspecialchars($person['jabatan']);
-  $foto    = htmlspecialchars($person['foto']);
+  $foto    = htmlspecialchars($person['foto'] ?? '');
   $class   = trim('org-card ' . $extra_class);
+  $gambar  = $foto
+    ? "<img src=\"{$foto}\" alt=\"Foto {$nama}\" loading=\"{$loading}\">"
+    : '<div style="width:110px;height:110px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;background:var(--color-sage,#DCE7DC);font-weight:700;font-size:1.2rem;color:var(--color-leaf-dark,#2F6B3F);">' . htmlspecialchars(strtoupper(implode('', array_map(fn($w) => $w[0], array_slice(array_filter(explode(' ', $person['nama'])), 0, 2))))) . '</div>';
   echo <<<HTML
         <div class="{$class}">
-          <img src="{$foto}" alt="Foto {$nama}" loading="{$loading}">
+          {$gambar}
           <h3>{$nama}</h3>
           <p>{$jabatan}</p>
         </div>

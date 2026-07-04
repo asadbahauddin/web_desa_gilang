@@ -1,8 +1,8 @@
 <?php
 // ============================================================
-//  Koneksi DB — sesuaikan dengan config proyekmu
+//  Koneksi DB
 // ============================================================
-// require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db.php';
+require_once __DIR__ . '/../../config/database.php';
 
 // ============================================================
 //  Konfigurasi halaman
@@ -78,20 +78,27 @@ $form = [
 ];
 
 // ============================================================
-//  Proses form — sambungkan ke backend/email/DB di sini
-//
-//  Contoh simpan ke DB (PDO):
-//  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-//    $stmt = $pdo->prepare("INSERT INTO pesan_masuk (nama, email, pesan) VALUES (?, ?, ?)");
-//    $stmt->execute([
-//      trim($_POST['nama']  ?? ''),
-//      trim($_POST['email'] ?? ''),
-//      trim($_POST['pesan'] ?? ''),
-//    ]);
-//    $form_sukses = true;
-//  }
+//  Proses form
 // ============================================================
 $form_sukses = false;
+$form_errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $nama_pengirim  = trim($_POST['nama']  ?? '');
+  $email_pengirim = trim($_POST['email'] ?? '');
+  $pesan_pengirim = trim($_POST['pesan'] ?? '');
+
+  if ($nama_pengirim === '')  $form_errors[] = 'Nama wajib diisi.';
+  if ($email_pengirim === '') $form_errors[] = 'Email wajib diisi.';
+  if ($pesan_pengirim === '') $form_errors[] = 'Pesan wajib diisi.';
+
+  if (empty($form_errors)) {
+    $stmt = mysqli_prepare($conn, "INSERT INTO pesan_masuk (nama, email, pesan) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, 'sss', $nama_pengirim, $email_pengirim, $pesan_pengirim);
+    mysqli_stmt_execute($stmt);
+    $form_sukses = true;
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -205,18 +212,25 @@ $form_sukses = false;
             <?php echo htmlspecialchars($form['sukses']); ?>
           </div>
           <?php else : ?>
+          <?php if (!empty($form_errors)) : ?>
+          <div class="form-error is-visible" role="alert" style="background:#F3E9E6;border:1px solid #E0BBAF;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:#A24A35;">
+            <?php foreach ($form_errors as $err) : ?>
+              <div><?php echo htmlspecialchars($err); ?></div>
+            <?php endforeach; ?>
+          </div>
+          <?php endif; ?>
           <form id="kontakForm" method="POST" action="">
             <div class="form-group">
               <label for="namaPengirim">Nama Lengkap</label>
-              <input type="text" id="namaPengirim" name="nama" placeholder="Masukkan nama kamu" required>
+              <input type="text" id="namaPengirim" name="nama" value="<?php echo htmlspecialchars($_POST['nama'] ?? ''); ?>" placeholder="Masukkan nama kamu" required>
             </div>
             <div class="form-group">
               <label for="emailPengirim">Email</label>
-              <input type="email" id="emailPengirim" name="email" placeholder="nama@email.com" required>
+              <input type="email" id="emailPengirim" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" placeholder="nama@email.com" required>
             </div>
             <div class="form-group">
               <label for="pesanPengirim">Pesan</label>
-              <textarea id="pesanPengirim" name="pesan" placeholder="Tulis pertanyaan atau masukan kamu di sini..." required></textarea>
+              <textarea id="pesanPengirim" name="pesan" placeholder="Tulis pertanyaan atau masukan kamu di sini..." required><?php echo htmlspecialchars($_POST['pesan'] ?? ''); ?></textarea>
             </div>
             <button type="submit" class="btn btn--primary">
               <?php echo htmlspecialchars($form['eyebrow']); ?>

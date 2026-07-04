@@ -1,27 +1,47 @@
 <?php
-// ===================================================================
-// CATATAN UNTUK TAHAP SELANJUTNYA:
-// File ini baru dikonversi ke .php dari .html (struktur & tampilan
-// tetap sama). Data dokumen masih diambil & dihapus lewat JS
-// (getAllDokumen, deleteDokumen di dokumen.js) karena belum ada
-// database.
-//
-// Saat database MySQL sudah siap nanti:
-//   1. Ganti getAllDokumen() dengan query SELECT dari PHP, lalu
-//      render <tbody> langsung di PHP (foreach), atau tetap pakai
-//      AJAX (fetch) ke endpoint PHP yang mengembalikan JSON.
-//   2. Tombol hapus sebaiknya memanggil endpoint PHP
-//      (proses-hapus-dokumen.php) yang menjalankan DELETE FROM
-//      dokumen WHERE id = ... (pakai prepared statement), termasuk
-//      menghapus file dokumen fisik di server jika ada.
-//   3. Fitur pencarian bisa tetap di client-side (JS) seperti sekarang,
-//      atau dipindah ke query SQL (LIKE) kalau datanya sudah banyak.
-// ===================================================================
-
 session_start();
 if (empty($_SESSION['admin'])) {
   header('Location: /admin/login.php');
   exit;
+}
+require_once __DIR__ . '/../../config/database.php';
+require __DIR__ . '/../_nav.php';
+$current_page = 'dokumen';
+
+$kategori_label = [
+  'persyaratan'  => 'Persyaratan Pelayanan',
+  'kesehatan'    => 'Informasi Kesehatan',
+  'pengumuman'   => 'Pengumuman',
+  'dokumen-desa' => 'Dokumen Desa',
+];
+
+$filter_cari = trim($_GET['cari'] ?? '');
+
+if ($filter_cari !== '') {
+  $stmt = mysqli_prepare($conn, "SELECT id, nama, kategori, tanggal, file FROM dokumen WHERE nama LIKE ? ORDER BY tanggal DESC");
+  $like = '%' . $filter_cari . '%';
+  mysqli_stmt_bind_param($stmt, 's', $like);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+} else {
+  $result = mysqli_query($conn, "SELECT id, nama, kategori, tanggal, file FROM dokumen ORDER BY tanggal DESC");
+}
+$dokumen_list = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+
+$notif = match ($_GET['saved'] ?? '') {
+  '1' => ['type' => 'ok', 'pesan' => 'Dokumen berhasil disimpan.'],
+  default => null,
+};
+$notif ??= match ($_GET['deleted'] ?? '') {
+  '1' => ['type' => 'off', 'pesan' => 'Dokumen berhasil dihapus.'],
+  default => null,
+};
+
+function format_tanggal_dokumen(string $iso): string {
+  if (!$iso) return '-';
+  $bulan = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  [$y, $m, $d] = explode('-', $iso);
+  return (int)$d . ' ' . $bulan[(int)$m] . ' ' . $y;
 }
 ?>
 <!DOCTYPE html>
@@ -36,15 +56,22 @@ if (empty($_SESSION['admin'])) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="icon" href="/assets/logo/logo-desa.png">
+  <link rel="icon" href="/assets/logo/logo-desa.jpg">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <?php require __DIR__ . '/../_sidebar-style.php'; ?>
+  <style>
+    .notif{padding:12px 18px;border-radius:10px;font-size:13.5px;font-weight:600;margin-bottom:18px;}
+    .notif--ok{background:var(--ap-ok-bg,#EAF3E9);color:var(--ap-ok-text,#2F6B3F);}
+    .notif--off{background:var(--ap-off-bg,#F3E9E6);color:var(--ap-off-text,#A24A35);}
+  </style>
 </head>
 <body data-admin data-page="dokumen">
 
   <div class="admin-layout">
-    <div id="sidebar-placeholder"></div>
+    <div class="admin-sidebar-backdrop" id="sidebarBackdrop"></div>
+    <?php require __DIR__ . '/../_sidebar.php'; ?>
 
     <div class="admin-main">
       <header class="admin-topbar">
@@ -55,8 +82,8 @@ if (empty($_SESSION['admin'])) {
           <h2 class="admin-topbar__title">Kelola Dokumen</h2>
         </div>
         <div class="admin-topbar__user">
-          <span class="admin-topbar__name" id="topbarEmail">admin@desagilang.go.id</span>
-          <span class="admin-topbar__avatar">AD</span>
+          <span class="admin-topbar__name" id="topbarEmail"><?php echo htmlspecialchars($__admin_nama); ?></span>
+          <span class="admin-topbar__avatar"><?php echo htmlspecialchars($__admin_inisial); ?></span>
         </div>
       </header>
 
@@ -70,12 +97,21 @@ if (empty($_SESSION['admin'])) {
           <a href="/admin/dokumen/tambah.php" class="btn btn--primary">+ Tambah Dokumen</a>
         </div>
 
-        <div class="admin-toolbar">
+        <?php if ($notif) : ?>
+        <div class="notif notif--<?php echo $notif['type']; ?>" role="alert">
+          <?php echo htmlspecialchars($notif['pesan']); ?>
+        </div>
+        <?php endif; ?>
+
+        <form class="admin-toolbar" method="GET" action="">
           <div class="admin-search">
             <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.5"/><path d="M14 14l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <input type="text" id="searchInput" placeholder="Cari nama dokumen...">
+            <input type="text" name="cari" placeholder="Cari nama dokumen..." value="<?php echo htmlspecialchars($filter_cari); ?>">
           </div>
-        </div>
+          <?php if ($filter_cari) : ?>
+          <a href="/admin/dokumen/index.php" style="font-size:13px;color:var(--ap-ink-muted);text-decoration:none;">✕ Reset</a>
+          <?php endif; ?>
+        </form>
 
         <div class="admin-table-wrap">
           <table class="admin-table">
@@ -87,10 +123,29 @@ if (empty($_SESSION['admin'])) {
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody id="dokumenTableBody"></tbody>
+            <tbody>
+              <?php foreach ($dokumen_list as $d) : ?>
+              <tr>
+                <td style="font-weight:600; color:var(--color-forest);"><?php echo htmlspecialchars($d['nama']); ?></td>
+                <td><span class="dokumen-badge"><?php echo htmlspecialchars($kategori_label[$d['kategori']] ?? $d['kategori']); ?></span></td>
+                <td class="font-mono"><?php echo format_tanggal_dokumen($d['tanggal']); ?></td>
+                <td>
+                  <div class="admin-table__actions">
+                    <a href="/admin/dokumen/edit.php?id=<?php echo $d['id']; ?>" class="btn-icon btn-icon--edit" aria-label="Edit">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4l11-11-4-4L4 16v4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                    </a>
+                    <a href="/admin/dokumen/hapus.php?id=<?php echo $d['id']; ?>" class="btn-icon btn-icon--delete" aria-label="Hapus"
+                       onclick="return confirm('Hapus dokumen &quot;<?php echo addslashes($d['nama']); ?>&quot;? Tindakan tidak dapat dibatalkan.')">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
           </table>
 
-          <div class="admin-empty" id="emptyState">
+          <div class="admin-empty<?php echo empty($dokumen_list) ? ' is-visible' : ''; ?>">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
             <p>Belum ada dokumen yang cocok. Coba kata kunci lain atau tambah dokumen baru.</p>
           </div>
@@ -100,64 +155,6 @@ if (empty($_SESSION['admin'])) {
     </div>
   </div>
 
-  <script src="/js/auth.js"></script>
-  <script src="/js/berita.js"></script>
-  <script src="/js/dokumen.js"></script>
-  <script src="/js/galeri.js"></script>
-  <script src="/js/dashboard.js"></script>
-
-  <script>
-    const DOKUMEN_KATEGORI_LABEL = {
-      persyaratan: 'Persyaratan Pelayanan', kesehatan: 'Informasi Kesehatan', pengumuman: 'Pengumuman', 'dokumen-desa': 'Dokumen Desa',
-    };
-
-    function formatTanggalDok(iso) {
-      if (!iso) return '-';
-      return new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-    }
-
-    function renderDokumenTable() {
-      const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-      const tbody = document.getElementById('dokumenTableBody');
-      const emptyState = document.getElementById('emptyState');
-
-      const items = getAllDokumen().filter((d) => d.nama.toLowerCase().includes(keyword));
-
-      tbody.innerHTML = items.map((d) => `
-        <tr>
-          <td style="font-weight:600; color:var(--color-forest);">${d.nama}</td>
-          <td><span class="dokumen-badge">${DOKUMEN_KATEGORI_LABEL[d.kategori] || d.kategori}</span></td>
-          <td class="font-mono">${formatTanggalDok(d.tanggal)}</td>
-          <td>
-            <div class="admin-table__actions">
-              <a href="/admin/dokumen/edit.php?id=${d.id}" class="btn-icon btn-icon--edit" aria-label="Edit">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4l11-11-4-4L4 16v4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-              </a>
-              <button class="btn-icon btn-icon--delete" data-delete-id="${d.id}" aria-label="Hapus">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-
-      emptyState.classList.toggle('is-visible', items.length === 0);
-
-      tbody.querySelectorAll('[data-delete-id]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          if (confirm('Hapus dokumen ini? Tindakan tidak dapat dibatalkan.')) {
-            deleteDokumen(btn.getAttribute('data-delete-id'));
-            renderDokumenTable();
-            showToast('Dokumen berhasil dihapus.');
-          }
-        });
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      renderDokumenTable();
-      document.getElementById('searchInput').addEventListener('input', renderDokumenTable);
-    });
-  </script>
+  <?php require __DIR__ . '/../_sidebar-script.php'; ?>
 </body>
 </html>

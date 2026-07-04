@@ -1,3 +1,14 @@
+<?php
+require_once __DIR__ . '/../../config/database.php';
+
+$result   = mysqli_query($conn, "SELECT nama, jabatan, foto FROM aparatur WHERE status = 'aktif' ORDER BY jabatan ASC, nama ASC");
+$aparatur = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+
+function inisial_aparatur_publik(string $nama): string {
+  $kata = array_filter(explode(' ', $nama));
+  return strtoupper(implode('', array_map(fn($w) => $w[0], array_slice($kata, 0, 2))));
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -44,10 +55,10 @@ Mengenal perangkat desa yang bertugas memberikan pelayanan terbaik bagi masyarak
 
 <?php
 $statistik = [
-  ['jumlah' => 15, 'label' => 'Perangkat Desa'],
-  ['jumlah' => 4,  'label' => 'Kepala Dusun'],
-  ['jumlah' => 3,  'label' => 'Kasi'],
-  ['jumlah' => 2,  'label' => 'Kaur'],
+  ['jumlah' => count($aparatur), 'label' => 'Perangkat Desa'],
+  ['jumlah' => count(array_filter($aparatur, fn($a) => str_starts_with($a['jabatan'], 'Kepala Dusun'))), 'label' => 'Kepala Dusun'],
+  ['jumlah' => count(array_filter($aparatur, fn($a) => str_starts_with($a['jabatan'], 'Kasi'))), 'label' => 'Kasi'],
+  ['jumlah' => count(array_filter($aparatur, fn($a) => str_starts_with($a['jabatan'], 'Kaur'))), 'label' => 'Kaur'],
 ];
 ?>
 
@@ -75,13 +86,10 @@ $statistik = [
 <!-- KEPALA DESA -->
 
 <?php
-$kepalaDesa = [
-  'foto'  => 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=800&q=80',
-  'nama'  => 'Bapak Suwarno, S.Sos.',
-  'desk'  => 'Kepala Desa Gilang yang memimpin penyelenggaraan pemerintahan desa serta pembangunan demi kesejahteraan masyarakat.',
-];
+$kepalaDesa = array_values(array_filter($aparatur, fn($a) => $a['jabatan'] === 'Kepala Desa'))[0] ?? null;
 ?>
 
+<?php if ($kepalaDesa) : ?>
 <section class="section">
 
 <div class="container">
@@ -96,15 +104,21 @@ Kepala Desa
 
 <div class="kepala-card">
 
+<?php if ($kepalaDesa['foto']) : ?>
 <img
 src="<?php echo htmlspecialchars($kepalaDesa['foto']); ?>"
-alt="Kepala Desa">
+alt="<?php echo htmlspecialchars($kepalaDesa['nama']); ?>">
+<?php else : ?>
+<div style="width:100%;height:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:var(--color-sage,#DCE7DC);font-weight:700;font-size:2rem;color:var(--color-leaf-dark,#2F6B3F);">
+<?php echo htmlspecialchars(inisial_aparatur_publik($kepalaDesa['nama'])); ?>
+</div>
+<?php endif; ?>
 <div>
 
 <h2><?php echo htmlspecialchars($kepalaDesa['nama']); ?></h2>
 
 <p>
-<?php echo htmlspecialchars($kepalaDesa['desk']); ?>
+Kepala Desa Gilang yang memimpin penyelenggaraan pemerintahan desa serta pembangunan demi kesejahteraan masyarakat.
 </p>
 
 <a href="#aparatur-grid" class="btn btn--primary">
@@ -118,18 +132,14 @@ Lihat Aparatur
 </div>
 
 </section>
+<?php endif; ?>
 
 
 
 <!-- APARATUR -->
 
 <?php
-$aparaturList = [
-  ['foto' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600', 'nama' => 'Siti Aminah',  'jabatan' => 'Sekretaris Desa'],
-  ['foto' => 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600', 'nama' => 'Ahmad Fauzi',  'jabatan' => 'Kasi Pemerintahan'],
-  ['foto' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=600', 'nama' => 'Rudi Hartono', 'jabatan' => 'Kaur Umum'],
-  ['foto' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600', 'nama' => 'Nur Aisyah',   'jabatan' => 'Kaur Keuangan'],
-];
+$aparaturList = array_values(array_filter($aparatur, fn($a) => $a['jabatan'] !== 'Kepala Desa'));
 ?>
 
 <section class="section section--alt">
@@ -150,6 +160,7 @@ Aparatur Desa
 
 <input
 type="text"
+id="searchAparatur"
 class="search-aparatur"
 placeholder="Cari aparatur...">
 
@@ -159,14 +170,24 @@ placeholder="Cari aparatur...">
 
 <div class="aparatur-grid" id="aparatur-grid">
 
-<?php foreach ($aparaturList as $aparatur): ?>
-<div class="aparatur-card">
+<?php if (empty($aparaturList)) : ?>
+<p class="text-muted">Belum ada data aparatur.</p>
+<?php endif; ?>
 
-<img src="<?php echo htmlspecialchars($aparatur['foto']); ?>">
+<?php foreach ($aparaturList as $a): ?>
+<div class="aparatur-card" data-nama="<?php echo htmlspecialchars(strtolower($a['nama'])); ?>">
 
-<h3><?php echo htmlspecialchars($aparatur['nama']); ?></h3>
+<?php if ($a['foto']) : ?>
+<img src="<?php echo htmlspecialchars($a['foto']); ?>" alt="<?php echo htmlspecialchars($a['nama']); ?>">
+<?php else : ?>
+<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--color-sage,#DCE7DC);font-weight:700;font-size:1.4rem;color:var(--color-leaf-dark,#2F6B3F);border-radius:inherit;">
+<?php echo htmlspecialchars(inisial_aparatur_publik($a['nama'])); ?>
+</div>
+<?php endif; ?>
 
-<span><?php echo htmlspecialchars($aparatur['jabatan']); ?></span>
+<h3><?php echo htmlspecialchars($a['nama']); ?></h3>
+
+<span><?php echo htmlspecialchars($a['jabatan']); ?></span>
 
 </div>
 <?php endforeach; ?>
@@ -208,6 +229,20 @@ Struktur Organisasi
 
 <script src="../../js/navbar.js"></script>
 <script src="../../js/script.js"></script>
+<script>
+  (function () {
+    var input = document.getElementById('searchAparatur');
+    var cards = document.querySelectorAll('#aparatur-grid .aparatur-card');
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var kata = input.value.toLowerCase().trim();
+      cards.forEach(function (card) {
+        var cocok = card.getAttribute('data-nama').includes(kata);
+        card.style.display = cocok ? '' : 'none';
+      });
+    });
+  })();
+</script>
 
 </body>
 </html>

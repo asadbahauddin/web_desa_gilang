@@ -1,8 +1,30 @@
 
 <?php
+require_once __DIR__ . '/config/database.php';
+
 // Konfigurasi umum
 $page_title = "Desa Gilang — Situs Resmi Pemerintah Desa";
-$page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, galeri, dan informasi layanan masyarakat.";
+$page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, dan informasi layanan masyarakat.";
+
+$kategori_berita_label = [
+  'kegiatan'     => 'Kegiatan',
+  'ekonomi'      => 'Ekonomi',
+  'pemerintahan' => 'Pemerintahan',
+  'sosial'       => 'Sosial',
+];
+$kategori_dokumen_label = [
+  'persyaratan'  => 'Persyaratan Pelayanan',
+  'kesehatan'    => 'Informasi Kesehatan',
+  'pengumuman'   => 'Pengumuman',
+  'dokumen-desa' => 'Dokumen Desa',
+];
+
+function format_tanggal_id(string $iso): string {
+  if (!$iso) return '-';
+  $bulan = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  [$y, $m, $d] = explode('-', $iso);
+  return (int)$d . ' ' . $bulan[(int)$m] . ' ' . $y;
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -109,36 +131,8 @@ $page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, gal
 
     <!-- ============ BERITA TERBARU ============ -->
     <?php
-    // Data berita — idealnya diambil dari DB
-    $berita_list = [
-      [
-        'href'     => 'pages/publikasi/detail-berita.php',
-        'img_src'  => 'https://picsum.photos/seed/berita-gotong-royong/480/300',
-        'img_alt'  => 'Gotong royong bersih desa',
-        'category' => 'Kegiatan',
-        'date'     => '12 Jun 2026',
-        'title'    => 'Gotong Royong Bersih Desa Sambut Musim Tanam',
-        'excerpt'  => 'Warga Desa Gilang bersama perangkat desa melaksanakan kerja bakti membersihkan saluran irigasi menjelang musim tanam.',
-      ],
-      [
-        'href'     => 'pages/publikasi/detail-berita.php',
-        'img_src'  => 'https://picsum.photos/seed/berita-umkm-desa/480/300',
-        'img_alt'  => 'Pelatihan UMKM desa',
-        'category' => 'Ekonomi',
-        'date'     => '08 Jun 2026',
-        'title'    => 'Pelatihan UMKM: Olahan Hasil Panen Jadi Produk Bernilai',
-        'excerpt'  => 'Dinas Koperasi bekerja sama dengan pemerintah desa menggelar pelatihan pengolahan hasil panen bagi pelaku UMKM lokal.',
-      ],
-      [
-        'href'     => 'pages/publikasi/detail-berita.php',
-        'img_src'  => 'https://picsum.photos/seed/musyawarah-desa/480/300',
-        'img_alt'  => 'Musyawarah desa',
-        'category' => 'Pemerintahan',
-        'date'     => '02 Jun 2026',
-        'title'    => 'Musyawarah Desa Bahas Rencana Anggaran 2027',
-        'excerpt'  => 'Musyawarah desa digelar untuk membahas rancangan APBDes tahun 2027 bersama BPD dan tokoh masyarakat.',
-      ],
-    ];
+    $result      = mysqli_query($conn, "SELECT id, judul, excerpt, kategori, gambar, tanggal FROM berita WHERE status = 'published' ORDER BY tanggal DESC LIMIT 3");
+    $berita_list = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
     ?>
     <section class="section" id="berita-terbaru">
       <div class="container">
@@ -150,18 +144,25 @@ $page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, gal
           <a href="pages/publikasi/berita.php" class="btn btn--ghost">Semua Berita</a>
         </div>
 
+        <?php if (empty($berita_list)) : ?>
+        <p class="text-muted">Belum ada berita yang dipublikasikan.</p>
+        <?php else : ?>
         <div class="berita-grid">
-          <?php foreach ($berita_list as $berita) : ?>
+          <?php foreach ($berita_list as $berita) :
+            $href   = 'pages/publikasi/detail-berita.php?id=' . $berita['id'];
+            $gambar = $berita['gambar'] ?: 'https://picsum.photos/seed/berita-' . $berita['id'] . '/480/300';
+            $label  = $kategori_berita_label[$berita['kategori']] ?? $berita['kategori'];
+          ?>
           <article class="card-berita">
-            <a href="<?php echo htmlspecialchars($berita['href']); ?>" class="card-berita__img-wrap">
-              <img src="<?php echo htmlspecialchars($berita['img_src']); ?>" alt="<?php echo htmlspecialchars($berita['img_alt']); ?>">
-              <span class="card-berita__category"><?php echo htmlspecialchars($berita['category']); ?></span>
+            <a href="<?php echo htmlspecialchars($href); ?>" class="card-berita__img-wrap">
+              <img src="<?php echo htmlspecialchars($gambar); ?>" alt="<?php echo htmlspecialchars($berita['judul']); ?>">
+              <span class="card-berita__category"><?php echo htmlspecialchars($label); ?></span>
             </a>
             <div class="card-berita__body">
-              <span class="card-berita__date font-mono"><?php echo htmlspecialchars($berita['date']); ?></span>
-              <h3 class="card-berita__title"><?php echo htmlspecialchars($berita['title']); ?></h3>
+              <span class="card-berita__date font-mono"><?php echo format_tanggal_id($berita['tanggal']); ?></span>
+              <h3 class="card-berita__title"><?php echo htmlspecialchars($berita['judul']); ?></h3>
               <p class="card-berita__excerpt"><?php echo htmlspecialchars($berita['excerpt']); ?></p>
-              <a href="<?php echo htmlspecialchars($berita['href']); ?>" class="card-berita__link">
+              <a href="<?php echo htmlspecialchars($href); ?>" class="card-berita__link">
                 Baca selengkapnya
                 <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h12M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
@@ -169,18 +170,14 @@ $page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, gal
           </article>
           <?php endforeach; ?>
         </div>
+        <?php endif; ?>
       </div>
     </section>
 
     <!-- ============ DOKUMEN & INFORMASI PUBLIK ============ -->
     <?php
-    // Data dokumen — idealnya diambil dari DB
-    $dokumen_list = [
-      ['no' => '01', 'nama' => 'Syarat Pengajuan KTP Baru',             'kategori' => 'Persyaratan Pelayanan', 'tanggal' => '10 Jan 2026', 'file' => '#'],
-      ['no' => '02', 'nama' => 'Jadwal Posyandu Bulan Juni 2026',        'kategori' => 'Informasi Kesehatan',   'tanggal' => '01 Jun 2026', 'file' => '#'],
-      ['no' => '03', 'nama' => 'Pengumuman Penerimaan Bantuan Sosial',   'kategori' => 'Pengumuman',            'tanggal' => '10 Jun 2026', 'file' => '#'],
-      ['no' => '04', 'nama' => 'APBDes Tahun Anggaran 2026',             'kategori' => 'Dokumen Desa',          'tanggal' => '15 Jan 2026', 'file' => '#'],
-    ];
+    $result       = mysqli_query($conn, "SELECT id, nama, kategori, tanggal, file FROM dokumen ORDER BY tanggal DESC LIMIT 4");
+    $dokumen_list = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
     ?>
     <section class="section section--alt" id="dokumen-publik">
       <div class="container">
@@ -191,6 +188,9 @@ $page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, gal
           </div>
         </div>
 
+        <?php if (empty($dokumen_list)) : ?>
+        <p class="text-muted">Belum ada dokumen yang tersedia.</p>
+        <?php else : ?>
         <div class="dokumen-table-wrap">
           <table class="dokumen-table">
             <thead>
@@ -203,14 +203,14 @@ $page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, gal
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($dokumen_list as $dok) : ?>
+              <?php foreach ($dokumen_list as $i => $dok) : ?>
               <tr>
-                <td class="font-mono"><?php echo htmlspecialchars($dok['no']); ?></td>
+                <td class="font-mono"><?php echo str_pad($i + 1, 2, '0', STR_PAD_LEFT); ?></td>
                 <td><?php echo htmlspecialchars($dok['nama']); ?></td>
-                <td><span class="dokumen-badge"><?php echo htmlspecialchars($dok['kategori']); ?></span></td>
-                <td class="font-mono"><?php echo htmlspecialchars($dok['tanggal']); ?></td>
+                <td><span class="dokumen-badge"><?php echo htmlspecialchars($kategori_dokumen_label[$dok['kategori']] ?? $dok['kategori']); ?></span></td>
+                <td class="font-mono"><?php echo format_tanggal_id($dok['tanggal']); ?></td>
                 <td>
-                  <a href="<?php echo htmlspecialchars($dok['file']); ?>" class="dokumen-download">
+                  <a href="<?php echo htmlspecialchars($dok['file']); ?>" class="dokumen-download" download target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Unduh
                   </a>
@@ -220,45 +220,10 @@ $page_desc  = "Situs resmi Desa Gilang: profil desa, berita, dokumen publik, gal
             </tbody>
           </table>
         </div>
+        <?php endif; ?>
 
         <div class="dokumen-footer">
           <a href="/pages/publikasi/dokumen.php" class="btn btn--ghost">Lihat Semua Dokumen</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ GALERI ============ -->
-    <?php
-    // Data galeri — bisa diganti dari DB
-    $galeri_list = [
-      ['seed' => 'galeri-desa-1', 'size' => '600/600', 'alt' => 'Dokumentasi kegiatan desa 1'],
-      ['seed' => 'galeri-desa-2', 'size' => '300/300', 'alt' => 'Dokumentasi kegiatan desa 2'],
-      ['seed' => 'galeri-desa-3', 'size' => '300/300', 'alt' => 'Dokumentasi kegiatan desa 3'],
-      ['seed' => 'galeri-desa-4', 'size' => '300/300', 'alt' => 'Dokumentasi kegiatan desa 4'],
-      ['seed' => 'galeri-desa-5', 'size' => '300/300', 'alt' => 'Dokumentasi kegiatan desa 5'],
-    ];
-    ?>
-    <section class="section" id="galeri">
-      <div class="container">
-        <div class="section__header">
-          <div class="section__header-text">
-            <span class="eyebrow">Dokumentasi</span>
-            <h2 class="heading-leaf">Galeri Desa</h2>
-          </div>
-        </div>
-
-        <div class="galeri-grid">
-          <?php foreach ($galeri_list as $item) : ?>
-          <a href="/pages/galeri/galeri.php" class="galeri-item">
-            <img
-              src="https://picsum.photos/seed/<?php echo htmlspecialchars($item['seed']); ?>/<?php echo $item['size']; ?>"
-              alt="<?php echo htmlspecialchars($item['alt']); ?>">
-          </a>
-          <?php endforeach; ?>
-        </div>
-
-        <div class="galeri-footer">
-          <a href="/pages/galeri/galeri.php" class="btn btn--ghost">Lihat Semua Galeri</a>
         </div>
       </div>
     </section>

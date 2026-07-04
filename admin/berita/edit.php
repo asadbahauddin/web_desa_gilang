@@ -1,26 +1,58 @@
 <?php
-// ===================================================================
-// CATATAN UNTUK TAHAP SELANJUTNYA:
-// File ini baru dikonversi ke .php dari .html (struktur & tampilan
-// tetap sama). Logika data berita (getBeritaById, updateBerita) masih
-// di JS (berita.js) karena belum ada database.
-//
-// Saat database MySQL sudah siap nanti, bagian yang perlu diganti:
-//   1. Ambil data berita berdasarkan $_GET['id'] lewat PHP + query SQL,
-//      lalu isi value input via PHP (bukan JS loadBerita()).
-//   2. Ubah <form id="beritaForm"> agar submit ke endpoint PHP
-//      (method="POST", action="proses-berita.php") alih-alih
-//      ditangani penuh oleh JS.
-//   3. Untuk upload gambar sampul, tambahkan <input type="file">
-//      + enctype="multipart/form-data" pada form, dan proses upload
-//      filenya di PHP sebelum disimpan path/nama filenya ke MySQL.
-// ===================================================================
-
 session_start();
 if (empty($_SESSION['admin'])) {
   header('Location: /admin/login.php');
   exit;
 }
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../_upload.php';
+
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+
+$stmt = mysqli_prepare($conn, "SELECT * FROM berita WHERE id = ? LIMIT 1");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$berita = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+if (!$berita) {
+  header('Location: /admin/berita/index.php?toast=' . rawurlencode('Berita tidak ditemukan'));
+  exit;
+}
+
+$errors = [];
+$post   = $berita;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $post     = $_POST;
+  $judul    = trim($_POST['judul'] ?? '');
+  $excerpt  = trim($_POST['excerpt'] ?? '');
+  $konten   = trim($_POST['konten'] ?? '');
+  $kategori = $_POST['kategori'] ?? '';
+  $tanggal  = $_POST['tanggal'] ?? '';
+  $status   = $_POST['status'] ?? 'draft';
+
+  if ($judul === '')   $errors[] = 'Judul berita wajib diisi.';
+  if ($konten === '')  $errors[] = 'Isi berita wajib diisi.';
+  if ($tanggal === '') $errors[] = 'Tanggal terbit wajib diisi.';
+
+  if (empty($errors)) {
+    $gambar = $berita['gambar'];
+    $gambarBaru = upload_gambar('gambar');
+    if ($gambarBaru) {
+      hapus_file_upload($gambar);
+      $gambar = $gambarBaru;
+    }
+    $stmt = mysqli_prepare($conn, "UPDATE berita SET judul=?, excerpt=?, isi=?, kategori=?, gambar=?, tanggal=?, status=? WHERE id=?");
+    mysqli_stmt_bind_param($stmt, 'sssssssi', $judul, $excerpt, $konten, $kategori, $gambar, $tanggal, $status, $id);
+    mysqli_stmt_execute($stmt);
+    header('Location: /admin/berita/index.php?saved=1');
+    exit;
+  }
+}
+
+require __DIR__ . '/../_nav.php';
+$current_page = 'berita';
+$v = fn(string $key) => htmlspecialchars($post[$key] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -34,15 +66,17 @@ if (empty($_SESSION['admin'])) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="icon" href="/assets/logo/logo-desa.png">
+  <link rel="icon" href="/assets/logo/logo-desa.jpg">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <?php require __DIR__ . '/../_sidebar-style.php'; ?>
 </head>
 <body data-admin data-page="berita">
 
   <div class="admin-layout">
-    <div id="sidebar-placeholder"></div>
+    <div class="admin-sidebar-backdrop" id="sidebarBackdrop"></div>
+    <?php require __DIR__ . '/../_sidebar.php'; ?>
 
     <div class="admin-main">
       <header class="admin-topbar">
@@ -53,8 +87,8 @@ if (empty($_SESSION['admin'])) {
           <h2 class="admin-topbar__title">Edit Berita</h2>
         </div>
         <div class="admin-topbar__user">
-          <span class="admin-topbar__name" id="topbarEmail">admin@desagilang.go.id</span>
-          <span class="admin-topbar__avatar">AD</span>
+          <span class="admin-topbar__name" id="topbarEmail"><?php echo htmlspecialchars($__admin_nama); ?></span>
+          <span class="admin-topbar__avatar"><?php echo htmlspecialchars($__admin_inisial); ?></span>
         </div>
       </header>
 
@@ -68,7 +102,18 @@ if (empty($_SESSION['admin'])) {
           <a href="/admin/berita/index.php" class="btn btn--ghost">← Kembali ke Daftar</a>
         </div>
 
-        <form id="beritaForm">
+        <?php if (!empty($errors)) : ?>
+        <div class="form-errors" role="alert" style="background:#F3E9E6;border:1px solid #E0BBAF;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13.5px;color:#A24A35;">
+          <strong>Mohon perbaiki kesalahan berikut:</strong>
+          <ul style="margin:6px 0 0 16px;padding:0;">
+            <?php foreach ($errors as $err) : ?>
+            <li><?php echo htmlspecialchars($err); ?></li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+        <?php endif; ?>
+
+        <form id="beritaForm" method="POST" enctype="multipart/form-data" action="">
           <div class="admin-form">
 
             <div class="admin-panel">
@@ -76,17 +121,17 @@ if (empty($_SESSION['admin'])) {
 
               <div class="form-group">
                 <label for="judul">Judul Berita</label>
-                <input type="text" id="judul" name="judul" required>
+                <input type="text" id="judul" name="judul" value="<?php echo $v('judul'); ?>" required>
               </div>
 
               <div class="form-group">
                 <label for="excerpt">Ringkasan Singkat</label>
-                <input type="text" id="excerpt" name="excerpt" required>
+                <input type="text" id="excerpt" name="excerpt" value="<?php echo $v('excerpt'); ?>" required>
               </div>
 
               <div class="form-group">
                 <label for="konten">Isi Berita</label>
-                <textarea id="konten" name="konten" required></textarea>
+                <textarea id="konten" name="konten" required><?php echo htmlspecialchars($post['konten'] ?? $post['isi'] ?? ''); ?></textarea>
               </div>
             </div>
 
@@ -97,23 +142,27 @@ if (empty($_SESSION['admin'])) {
                 <div class="form-group">
                   <label for="kategori">Kategori</label>
                   <select id="kategori" name="kategori" required>
-                    <option value="kegiatan">Kegiatan</option>
-                    <option value="ekonomi">Ekonomi</option>
-                    <option value="pemerintahan">Pemerintahan</option>
-                    <option value="sosial">Sosial</option>
+                    <?php foreach (['kegiatan'=>'Kegiatan','ekonomi'=>'Ekonomi','pemerintahan'=>'Pemerintahan','sosial'=>'Sosial'] as $val => $lbl) :
+                      $sel = ($val === ($post['kategori'] ?? '')) ? ' selected' : '';
+                    ?>
+                    <option value="<?php echo $val; ?>"<?php echo $sel; ?>><?php echo $lbl; ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label for="tanggal">Tanggal Terbit</label>
-                  <input type="date" id="tanggal" name="tanggal" required>
+                  <input type="date" id="tanggal" name="tanggal" value="<?php echo $v('tanggal'); ?>" required>
                 </div>
 
                 <div class="form-group">
                   <label for="status">Status</label>
                   <select id="status" name="status" required>
-                    <option value="published">Tayang</option>
-                    <option value="draft">Draft</option>
+                    <?php foreach (['published'=>'Tayang','draft'=>'Draft'] as $val => $lbl) :
+                      $sel = ($val === ($post['status'] ?? '')) ? ' selected' : '';
+                    ?>
+                    <option value="<?php echo $val; ?>"<?php echo $sel; ?>><?php echo $lbl; ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
               </div>
@@ -121,14 +170,17 @@ if (empty($_SESSION['admin'])) {
               <div class="admin-panel">
                 <h3 class="admin-panel__title">Gambar Sampul</h3>
                 <div class="form-group">
-                  <label for="gambar">URL Gambar</label>
-                  <input type="text" id="gambar" name="gambar" placeholder="https://...">
-                  <p class="text-muted" style="font-size:0.78rem; margin-top:6px;">
-                    Sementara pakai URL gambar — upload file asli aktif setelah Tahap 12 (MySQL + penyimpanan file).
-                  </p>
+                  <label>Berkas Gambar</label>
+                  <div class="upload-dropzone" id="dropzoneGambar">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7 9m5-5l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                    <p><span>Klik untuk ganti gambar</span> atau seret ke sini</p>
+                  </div>
+                  <input type="file" id="gambar" name="gambar" accept="image/*" style="display:none;">
+                  <p class="text-muted" id="gambarFileName" style="font-size:0.82rem; margin-top:8px;"></p>
+                  <p class="text-muted" style="font-size:.78rem;margin-top:6px;">Biarkan kosong jika tidak ingin mengganti gambar sampul.</p>
                 </div>
-                <div class="upload-preview is-visible" id="imgPreview">
-                  <img src="" alt="Pratinjau gambar">
+                <div class="upload-preview<?php echo $berita['gambar'] ? ' is-visible' : ''; ?>" id="imgPreview">
+                  <img src="<?php echo htmlspecialchars($berita['gambar'] ?? ''); ?>" alt="Pratinjau gambar">
                 </div>
               </div>
             </div>
@@ -145,54 +197,39 @@ if (empty($_SESSION['admin'])) {
     </div>
   </div>
 
-  <script src="/js/auth.js"></script>
-  <script src="/js/berita.js"></script>
-  <script src="/js/dokumen.js"></script>
-  <script src="/js/galeri.js"></script>
-  <script src="/js/dashboard.js"></script>
-
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const beritaId = params.get('id');
     const gambarInput = document.getElementById('gambar');
+    const dropzoneGambar = document.getElementById('dropzoneGambar');
+    const gambarFileName = document.getElementById('gambarFileName');
     const preview = document.getElementById('imgPreview');
+    const previewImg = preview.querySelector('img');
 
-    function loadBerita() {
-      const item = beritaId ? getBeritaById(beritaId) : null;
-      if (!item) {
-        window.location.href = '/admin/berita/index.php?toast=Berita%20tidak%20ditemukan';
+    function tampilkanGambar(file) {
+      if (!file || !file.type.startsWith('image/')) {
+        alert('Hanya file gambar yang diizinkan.');
         return;
       }
-      document.getElementById('judul').value = item.judul;
-      document.getElementById('excerpt').value = item.excerpt;
-      document.getElementById('konten').value = item.konten;
-      document.getElementById('kategori').value = item.kategori;
-      document.getElementById('tanggal').value = item.tanggal;
-      document.getElementById('status').value = item.status;
-      gambarInput.value = item.gambar;
-      preview.querySelector('img').src = item.gambar;
+      gambarFileName.textContent = '🖼 ' + file.name;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        preview.classList.add('is-visible');
+      };
+      reader.readAsDataURL(file);
     }
 
-    gambarInput.addEventListener('input', () => {
-      preview.querySelector('img').src = gambarInput.value.trim();
-      preview.classList.toggle('is-visible', !!gambarInput.value.trim());
-    });
+    dropzoneGambar.addEventListener('click', () => gambarInput.click());
+    gambarInput.addEventListener('change', () => tampilkanGambar(gambarInput.files[0]));
 
-    document.getElementById('beritaForm').addEventListener('submit', (e) => {
+    dropzoneGambar.addEventListener('dragover', (e) => { e.preventDefault(); dropzoneGambar.classList.add('is-dragover'); });
+    dropzoneGambar.addEventListener('dragleave', () => dropzoneGambar.classList.remove('is-dragover'));
+    dropzoneGambar.addEventListener('drop', (e) => {
       e.preventDefault();
-      updateBerita(beritaId, {
-        judul: document.getElementById('judul').value.trim(),
-        excerpt: document.getElementById('excerpt').value.trim(),
-        konten: document.getElementById('konten').value.trim(),
-        kategori: document.getElementById('kategori').value,
-        tanggal: document.getElementById('tanggal').value,
-        status: document.getElementById('status').value,
-        gambar: gambarInput.value.trim(),
-      });
-      window.location.href = '/admin/berita/index.php?toast=Berita%20berhasil%20diperbarui';
+      dropzoneGambar.classList.remove('is-dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) { gambarInput.files = e.dataTransfer.files; tampilkanGambar(file); }
     });
-
-    document.addEventListener('DOMContentLoaded', loadBerita);
   </script>
+  <?php require __DIR__ . '/../_sidebar-script.php'; ?>
 </body>
 </html>

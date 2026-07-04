@@ -5,7 +5,7 @@ $menu_utama = [
   [
     'page'  => 'dashboard',
     'label' => 'Dashboard',
-    'href' => '/web-desa-gilang/admin/dashboard.php',
+    'href' => '/admin/dashboard.php',
     'icon'  => '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="3" width="8" height="5" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="11" width="8" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="14" width="8" height="7" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>',
   ],
 ];
@@ -14,19 +14,19 @@ $menu_konten = [
   [
     'page'  => 'berita',
     'label' => 'Berita',
-    'href'  => '/web-desa-gilang/admin/berita/index.php',
+    'href'  => '/admin/berita/index.php',
     'icon'  => '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 9h10M7 13h10M7 17h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   ],
   [
     'page'  => 'dokumen',
     'label' => 'Dokumen',
-    'href'  => '/web-desa-gilang/admin/dokumen/index.php',
+    'href'  => '/admin/dokumen/index.php',
     'icon'  => '<svg viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   ],
   [
     'page'  => 'galeri',
     'label' => 'Galeri',
-    'href'  => '/web-desa-gilang/admin/galeri/index.php',
+    'href'  => '/admin/galeri/index.php',
     'icon'  => '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="8.5" r="1.8" stroke="currentColor" stroke-width="1.6"/><path d="M21 16l-5.5-5.5L9 17" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   ],
 ];
@@ -41,7 +41,7 @@ function is_active(string $href, string $current): bool {
 
   <!-- Brand -->
   <div class="admin-sidebar__brand">
-    <img src="/web-desa-gilang/assets/logo/logo-desa.jpg"
+    <img src="/assets/logo/logo-desa.jpg"
          alt="Logo Desa Gilang"
          class="admin-sidebar__logo"
          onerror="this.style.display='none'">

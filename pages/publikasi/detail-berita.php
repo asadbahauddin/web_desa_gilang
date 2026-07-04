@@ -1,126 +1,53 @@
 <?php
 // ============================================================
-//  Koneksi DB — sesuaikan dengan config proyekmu
+//  Koneksi DB
 // ============================================================
-// require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db.php';
+require_once __DIR__ . '/../../config/database.php';
+
+$kategori_label = [
+  'kegiatan'     => 'Kegiatan',
+  'ekonomi'      => 'Ekonomi',
+  'pemerintahan' => 'Pemerintahan',
+  'sosial'       => 'Sosial',
+];
+
+function format_tanggal_panjang(string $iso): string {
+  if (!$iso) return '-';
+  $bulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  [$y, $m, $d] = explode('-', $iso);
+  return (int)$d . ' ' . $bulan[(int)$m] . ' ' . $y;
+}
 
 // ============================================================
-//  Ambil slug dari URL
+//  Ambil id dari URL
 // ============================================================
-$slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
-if (empty($slug)) {
+if (!$id) {
   header('Location: /pages/publikasi/berita.php');
   exit;
 }
 
-// ============================================================
-//  Data berita — ganti dengan query DB nanti
-//
-//  Contoh query PDO:
-//
-//  $stmt = $pdo->prepare("
-//    SELECT b.*, k.nama AS kategori, a.nama AS penulis
-//    FROM berita b
-//    JOIN kategori_berita k ON k.id = b.kategori_id
-//    JOIN admin a ON a.id = b.admin_id
-//    WHERE b.slug = :slug AND b.status = 'terbit'
-//    LIMIT 1
-//  ");
-//  $stmt->execute([':slug' => $slug]);
-//  $berita = $stmt->fetch(PDO::FETCH_ASSOC);
-//
-//  if (!$berita) {
-//    header('HTTP/1.0 404 Not Found');
-//    include $_SERVER['DOCUMENT_ROOT'] . '/404.php';
-//    exit;
-//  }
-//
-//  // Update counter dilihat
-//  $pdo->prepare("UPDATE berita SET dilihat = dilihat + 1 WHERE slug = :slug")
-//      ->execute([':slug' => $slug]);
-//
-//  // Berita terkait (kategori sama, bukan berita ini)
-//  $rel = $pdo->prepare("
-//    SELECT b.judul, b.slug, b.thumbnail, b.tanggal_terbit, k.nama AS kategori
-//    FROM berita b
-//    JOIN kategori_berita k ON k.id = b.kategori_id
-//    WHERE b.kategori_id = :kid AND b.slug != :slug AND b.status = 'terbit'
-//    ORDER BY b.tanggal_terbit DESC
-//    LIMIT 3
-//  ");
-//  $rel->execute([':kid' => $berita['kategori_id'], ':slug' => $slug]);
-//  $berita_terkait = $rel->fetchAll(PDO::FETCH_ASSOC);
-// ============================================================
-
-// Data statis sementara — indeks by slug
-$semua_berita = [
-  'gotong-royong-bersih-desa-sambut-musim-tanam' => [
-    'judul'      => 'Gotong Royong Bersih Desa Sambut Musim Tanam',
-    'kategori'   => 'Kegiatan',
-    'tanggal'    => '12 Juni 2026',
-    'penulis'    => 'Admin Desa',
-    'cover'      => 'https://picsum.photos/seed/berita-gotong-royong/960/540',
-    'cover_alt'  => 'Warga bergotong royong membersihkan saluran irigasi',
-    'tags'       => ['Gotong Royong', 'Pertanian', 'Irigasi'],
-    'isi'        => '
-      <p>Warga Desa Gilang bersama perangkat desa melaksanakan kegiatan kerja bakti membersihkan saluran irigasi
-      di seluruh wilayah dusun pada hari Minggu pagi. Kegiatan ini merupakan agenda rutin yang dilaksanakan
-      setiap menjelang musim tanam guna memastikan aliran air ke sawah-sawah warga berjalan lancar.</p>
-
-      <p>Kepala Desa Gilang, Bapak Suwarno, turut hadir dan ikut serta dalam kegiatan tersebut. Ia menyampaikan
-      bahwa tradisi gotong royong merupakan warisan nilai yang harus terus dijaga sebagai identitas sosial
-      masyarakat desa.</p>
-
-      <blockquote>"Gotong royong bukan sekadar kerja bersama, tapi cara kita menjaga kebersamaan dan tanggung jawab terhadap lingkungan tempat kita tinggal."</blockquote>
-
-      <h3>Dampak Bagi Petani</h3>
-      <p>Saluran irigasi yang bersih dari sedimen dan tumbuhan liar diharapkan dapat meningkatkan efisiensi
-      distribusi air ke lahan persawahan, terutama bagi petani di wilayah Dusun II dan III yang selama ini
-      kerap mengalami keterlambatan pasokan air saat awal musim tanam.</p>
-
-      <p>Selain membersihkan saluran irigasi, warga juga memperbaiki beberapa titik tanggul yang mulai rapuh
-      serta menanam pohon peneduh di sepanjang jalan menuju area persawahan sebagai upaya pelestarian
-      lingkungan jangka panjang.</p>
-    ',
-  ],
-];
-
-$berita = $semua_berita[$slug] ?? null;
+$stmt = mysqli_prepare($conn, "SELECT * FROM berita WHERE id = ? AND status = 'published' LIMIT 1");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$berita = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 if (!$berita) {
   header('HTTP/1.0 404 Not Found');
-  include $_SERVER['DOCUMENT_ROOT'] . '/404.php';
+  echo '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Berita Tidak Ditemukan — Desa Gilang</title></head><body style="font-family:sans-serif;text-align:center;padding:80px 20px;">'
+     . '<h1>404 — Berita Tidak Ditemukan</h1><p>Berita yang kamu cari tidak ada atau belum dipublikasikan.</p>'
+     . '<p><a href="/pages/publikasi/berita.php">← Kembali ke Daftar Berita</a></p></body></html>';
   exit;
 }
 
-// Berita terkait statis sementara
-$berita_terkait = [
-  [
-    'slug'     => 'panen-raya-padi-tandai-musim-tanam-berhasil',
-    'judul'    => 'Panen Raya Padi Tandai Musim Tanam yang Berhasil',
-    'kategori' => 'Ekonomi',
-    'tanggal'  => '20 Mei 2026',
-    'img_src'  => 'https://picsum.photos/seed/panen-raya-desa/480/300',
-    'img_alt'  => 'Panen raya padi',
-  ],
-  [
-    'slug'     => 'musyawarah-desa-bahas-rencana-anggaran-2027',
-    'judul'    => 'Musyawarah Desa Bahas Rencana Anggaran 2027',
-    'kategori' => 'Pemerintahan',
-    'tanggal'  => '02 Jun 2026',
-    'img_src'  => 'https://picsum.photos/seed/musyawarah-desa/480/300',
-    'img_alt'  => 'Musyawarah desa',
-  ],
-  [
-    'slug'     => 'posyandu-desa-gelar-pemeriksaan-kesehatan-gratis',
-    'judul'    => 'Posyandu Desa Gelar Pemeriksaan Kesehatan Gratis',
-    'kategori' => 'Sosial',
-    'tanggal'  => '28 Mei 2026',
-    'img_src'  => 'https://picsum.photos/seed/posyandu-desa/480/300',
-    'img_alt'  => 'Kegiatan Posyandu desa',
-  ],
-];
+// Berita terkait: kategori sama, bukan berita ini, hanya yang published
+$stmt = mysqli_prepare($conn, "SELECT id, judul, kategori, gambar, tanggal FROM berita WHERE kategori = ? AND id != ? AND status = 'published' ORDER BY tanggal DESC LIMIT 3");
+mysqli_stmt_bind_param($stmt, 'si', $berita['kategori'], $id);
+mysqli_stmt_execute($stmt);
+$berita_terkait = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
+
+$cover = $berita['gambar'] ?: 'https://picsum.photos/seed/berita-' . $berita['id'] . '/960/540';
 
 // URL halaman ini untuk tombol share
 $url_halaman = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -145,7 +72,7 @@ $judul_encode = urlencode($berita['judul']);
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="icon" href="/assets/logo/logo-desa.png">
+  <link rel="icon" href="/assets/logo/logo-desa.jpg">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/footer.css">
@@ -182,11 +109,10 @@ $judul_encode = urlencode($berita['judul']);
           <!-- Meta -->
           <div class="detail-berita__meta">
             <span class="card-berita__category" style="position:static;">
-              <?php echo htmlspecialchars($berita['kategori']); ?>
+              <?php echo htmlspecialchars($kategori_label[$berita['kategori']] ?? $berita['kategori']); ?>
             </span>
             <span class="text-muted font-mono" style="font-size:0.85rem;">
-              <?php echo htmlspecialchars($berita['tanggal']); ?>
-              &middot; oleh <?php echo htmlspecialchars($berita['penulis']); ?>
+              <?php echo format_tanggal_panjang($berita['tanggal']); ?>
             </span>
           </div>
 
@@ -196,31 +122,15 @@ $judul_encode = urlencode($berita['judul']);
           </h1>
 
           <!-- Cover -->
-          <img src="<?php echo htmlspecialchars($berita['cover']); ?>"
-               alt="<?php echo htmlspecialchars($berita['cover_alt']); ?>"
+          <img src="<?php echo htmlspecialchars($cover); ?>"
+               alt="<?php echo htmlspecialchars($berita['judul']); ?>"
                class="detail-berita__cover"
                loading="eager">
 
           <!-- Isi Konten -->
           <div class="detail-berita__content">
-            <?php
-            // Konten dari DB sudah HTML — gunakan strip_tags untuk keamanan jika dari input user
-            // Jika konten diinput via editor (TinyMCE/Quill), pastikan sanitasi sisi server sebelum disimpan
-            echo $berita['isi'];
-            ?>
+            <?php echo nl2br(htmlspecialchars($berita['isi'])); ?>
           </div>
-
-          <!-- Tags -->
-          <?php if (!empty($berita['tags'])) : ?>
-          <div class="detail-berita__tags">
-            <?php foreach ($berita['tags'] as $tag) : ?>
-            <a href="/pages/publikasi/berita.php?tag=<?php echo urlencode($tag); ?>"
-               class="detail-berita__tag">
-              <?php echo htmlspecialchars($tag); ?>
-            </a>
-            <?php endforeach; ?>
-          </div>
-          <?php endif; ?>
 
           <!-- Share -->
           <div class="detail-berita__share">
@@ -249,17 +159,19 @@ $judul_encode = urlencode($berita['judul']);
           <h2 class="heading-leaf" style="margin-bottom:28px;">Berita Terkait</h2>
           <div class="berita-terkait__grid">
             <?php foreach ($berita_terkait as $terkait) :
-              $href_terkait = '/pages/publikasi/detail-berita.php?slug=' . urlencode($terkait['slug']);
+              $href_terkait   = '/pages/publikasi/detail-berita.php?id=' . $terkait['id'];
+              $gambar_terkait = $terkait['gambar'] ?: 'https://picsum.photos/seed/berita-' . $terkait['id'] . '/480/300';
+              $label_terkait  = $kategori_label[$terkait['kategori']] ?? $terkait['kategori'];
             ?>
             <article class="card-berita">
               <a href="<?php echo htmlspecialchars($href_terkait); ?>" class="card-berita__img-wrap">
-                <img src="<?php echo htmlspecialchars($terkait['img_src']); ?>"
-                     alt="<?php echo htmlspecialchars($terkait['img_alt']); ?>"
+                <img src="<?php echo htmlspecialchars($gambar_terkait); ?>"
+                     alt="<?php echo htmlspecialchars($terkait['judul']); ?>"
                      loading="lazy">
-                <span class="card-berita__category"><?php echo htmlspecialchars($terkait['kategori']); ?></span>
+                <span class="card-berita__category"><?php echo htmlspecialchars($label_terkait); ?></span>
               </a>
               <div class="card-berita__body">
-                <span class="card-berita__date font-mono"><?php echo htmlspecialchars($terkait['tanggal']); ?></span>
+                <span class="card-berita__date font-mono"><?php echo format_tanggal_panjang($terkait['tanggal']); ?></span>
                 <h3 class="card-berita__title"><?php echo htmlspecialchars($terkait['judul']); ?></h3>
                 <a href="<?php echo htmlspecialchars($href_terkait); ?>" class="card-berita__link">Baca selengkapnya</a>
               </div>

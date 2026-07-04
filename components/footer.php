@@ -4,7 +4,6 @@ $footer_links = [
   ['label' => 'Sejarah Desa',   'href' => '/pages/profil/sejarah-desa.php'],
   ['label' => 'Berita Desa',    'href' => '/pages/publikasi/berita.php'],
   ['label' => 'Dokumen Publik', 'href' => '/pages/publikasi/dokumen.php'],
-  ['label' => 'Galeri',         'href' => '/pages/galeri/galeri.php'],
 ];
 
 $footer_sosial = [
@@ -37,7 +36,7 @@ $footer_sosial = [
 
     <!-- Brand -->
     <div class="footer__brand">
-      <img src="/assets/logo/logo-desa.png" alt="Logo Desa Gilang" class="footer__logo"
+      <img src="/assets/logo/logo-desa.jpg" alt="Logo Desa Gilang" class="footer__logo"
            onerror="this.style.display='none'">
       <div>
         <p class="footer__brand-title">Pemerintah Desa Gilang</p>

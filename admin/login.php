@@ -117,7 +117,7 @@ $captchaText = strtoupper($_SESSION['captcha_answer']);
   <!-- Kolom kiri — branding -->
   <div class="login-brand">
     <div class="login-brand__top">
-      <img src="/assets/logo/logo-desa.png" alt="Logo Desa Gilang" class="login-brand__logo"
+      <img src="/assets/logo/logo-desa.jpg" alt="Logo Desa Gilang" class="login-brand__logo"
            onerror="this.style.display='none'">
       <span class="login-brand__title">Desa Gilang</span>
     </div>

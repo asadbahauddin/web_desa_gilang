@@ -1,7 +1,7 @@
 <?php
 // Deteksi halaman aktif untuk highlight menu
 $current = $_SERVER['REQUEST_URI'];
-$base = "/web-desa-gilang/";
+$base = "/";
 
 // Deteksi halaman aktif
 $current = $_SERVER['REQUEST_URI'];

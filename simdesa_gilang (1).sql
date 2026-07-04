@@ -103,6 +103,50 @@ CREATE TABLE `dokumen` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `galeri`
+--
+
+CREATE TABLE `galeri` (
+  `id` int(11) NOT NULL,
+  `foto` varchar(255) NOT NULL,
+  `keterangan` varchar(255) NOT NULL,
+  `kategori` enum('kegiatan','alam','infrastruktur') NOT NULL DEFAULT 'kegiatan',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `pengumuman`
+--
+
+CREATE TABLE `pengumuman` (
+  `id` int(11) NOT NULL,
+  `judul` varchar(255) NOT NULL,
+  `isi` text NOT NULL,
+  `status` enum('aktif','nonaktif') NOT NULL DEFAULT 'aktif',
+  `tanggal` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `pesan_masuk`
+--
+
+CREATE TABLE `pesan_masuk` (
+  `id` int(11) NOT NULL,
+  `nama` varchar(150) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `pesan` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -133,6 +177,24 @@ ALTER TABLE `dokumen`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indeks untuk tabel `galeri`
+--
+ALTER TABLE `galeri`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `pengumuman`
+--
+ALTER TABLE `pengumuman`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `pesan_masuk`
+--
+ALTER TABLE `pesan_masuk`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT untuk tabel yang dibuang
 --
 
@@ -158,6 +220,24 @@ ALTER TABLE `berita`
 -- AUTO_INCREMENT untuk tabel `dokumen`
 --
 ALTER TABLE `dokumen`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `galeri`
+--
+ALTER TABLE `galeri`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `pengumuman`
+--
+ALTER TABLE `pengumuman`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `pesan_masuk`
+--
+ALTER TABLE `pesan_masuk`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
