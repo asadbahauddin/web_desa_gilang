@@ -1,0 +1,586 @@
+/* ==========================================================================
+   DASHBOARD.CSS — Layout & komponen seluruh halaman Admin
+   ========================================================================== */
+
+body[data-admin] {
+  background-color: var(--color-cream);
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- SIDEBAR ---- */
+.admin-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background-color: var(--color-forest);
+  color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-sidebar__logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.admin-sidebar__brand-title {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  color: var(--color-white);
+}
+
+.admin-sidebar__brand-sub {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.admin-sidebar__nav {
+  flex: 1;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-sidebar__label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  padding: 14px 12px 8px;
+}
+
+.admin-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.admin-sidebar__link svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.admin-sidebar__link:hover {
+  background-color: rgba(255,255,255,0.08);
+  color: var(--color-white);
+}
+
+.admin-sidebar__link.is-active {
+  background-color: var(--color-harvest);
+  color: var(--color-forest);
+}
+
+.admin-sidebar__footer {
+  padding: 16px 14px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.admin-sidebar__logout:hover {
+  background-color: rgba(255,255,255,0.08);
+  color: var(--color-white);
+}
+
+.admin-sidebar__logout svg { width: 18px; height: 18px; }
+
+/* ---- MAIN AREA ---- */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  background-color: var(--color-white);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(31,61,43,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-topbar__toggle {
+  display: none;
+  color: var(--color-forest);
+}
+
+.admin-topbar__toggle svg { width: 22px; height: 22px; }
+
+.admin-topbar__title {
+  font-size: 1.1rem;
+  color: var(--color-forest);
+}
+
+.admin-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-topbar__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--color-forest);
+}
+
+.admin-topbar__name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-forest);
+}
+
+.admin-content {
+  padding: 32px;
+  flex: 1;
+}
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.admin-page-header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+/* ---- STAT CARDS (dashboard) ---- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  background-color: var(--color-white);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.stat-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card__icon svg { width: 24px; height: 24px; }
+
+.stat-card--berita .stat-card__icon { background-color: var(--color-sage); color: var(--color-forest); }
+.stat-card--dokumen .stat-card__icon { background-color: #FCE8C4; color: var(--color-wood); }
+.stat-card--galeri .stat-card__icon { background-color: #D6E8DC; color: var(--color-leaf-dark); }
+
+.stat-card__number {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  color: var(--color-forest);
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* ---- Panel/card generik ---- */
+.admin-panel {
+  background-color: var(--color-white);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 28px;
+}
+
+.admin-panel__title {
+  font-size: 1.05rem;
+  margin-bottom: 18px;
+}
+
+/* ---- Toolbar (search + tombol tambah) ---- */
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.admin-search {
+  position: relative;
+  min-width: 260px;
+}
+
+.admin-search input {
+  width: 100%;
+  padding: 11px 16px 11px 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+}
+
+.admin-search input:focus {
+  outline: none;
+  border-color: var(--color-leaf);
+  background-color: var(--color-white);
+}
+
+.admin-search svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+}
+
+/* ---- Tabel admin (reuse pola dokumen-table) ---- */
+.admin-table-wrap {
+  background-color: var(--color-white);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 15px 18px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.admin-table thead {
+  background-color: var(--color-forest);
+}
+
+.admin-table th {
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table tbody tr:last-child { border-bottom: none; }
+.admin-table tbody tr:hover { background-color: var(--color-cream); }
+
+.admin-table__thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.status-pill--published { background-color: var(--color-sage); color: var(--color-forest); }
+.status-pill--draft { background-color: #EDE6D2; color: var(--color-wood); }
+
+.admin-table__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-cream);
+  color: var(--color-text-muted);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.btn-icon svg { width: 16px; height: 16px; }
+
+.btn-icon--edit:hover { background-color: var(--color-sage); color: var(--color-forest); }
+.btn-icon--delete:hover { background-color: #fbe1e1; color: #b03030; }
+
+/* ---- Form tambah/edit (CRUD) ---- */
+.admin-form {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+}
+
+.admin-form .form-group { margin-bottom: 18px; }
+
+.admin-form label {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-forest);
+  margin-bottom: 8px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--color-text);
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus {
+  outline: none;
+  border-color: var(--color-leaf);
+  background-color: var(--color-white);
+}
+
+.admin-form textarea { min-height: 220px; resize: vertical; }
+
+.admin-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* ---- Upload dropzone ---- */
+.upload-dropzone {
+  border: 2px dashed var(--color-sage);
+  border-radius: 14px;
+  padding: 32px 20px;
+  text-align: center;
+  background-color: var(--color-cream);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.upload-dropzone:hover {
+  border-color: var(--color-leaf);
+  background-color: #eef4ee;
+}
+
+.upload-dropzone svg {
+  width: 32px;
+  height: 32px;
+  color: var(--color-leaf);
+  margin: 0 auto 10px;
+}
+
+.upload-dropzone p {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.upload-dropzone span {
+  font-weight: 700;
+  color: var(--color-leaf-dark);
+}
+
+.upload-preview {
+  margin-top: 14px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: none;
+}
+
+.upload-preview.is-visible { display: block; }
+
+.upload-preview img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+}
+
+/* ---- Grid galeri admin (CRUD galeri) ---- */
+.galeri-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.galeri-admin-item {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: var(--color-white);
+  box-shadow: var(--shadow-soft);
+}
+
+.galeri-admin-item img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+.galeri-admin-item__caption {
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.galeri-admin-item__actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.galeri-admin-item__actions .btn-icon {
+  background-color: rgba(255,255,255,0.92);
+}
+
+/* ---- Empty state ---- */
+.admin-empty {
+  display: none;
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--color-text-muted);
+}
+
+.admin-empty.is-visible { display: block; }
+
+.admin-empty svg {
+  width: 42px;
+  height: 42px;
+  color: var(--color-sage);
+  margin: 0 auto 14px;
+}
+
+/* ---- Toast notifikasi sederhana ---- */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background-color: var(--color-forest);
+  color: var(--color-white);
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-deep);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 999;
+  transform: translateY(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease), visibility 0.3s var(--ease);
+}
+
+.toast.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.toast svg { width: 18px; height: 18px; color: var(--color-harvest); }
+
+/* ---- Responsif ---- */
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .galeri-admin-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .admin-form { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  .admin-sidebar {
+    position: fixed;
+    left: 0;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.3s var(--ease);
+  }
+  body.sidebar-open .admin-sidebar { transform: translateX(0); }
+  .admin-topbar__toggle { display: flex; }
+  .admin-content { padding: 20px; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .galeri-admin-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-table-wrap { overflow-x: auto; }
+  .admin-table { min-width: 600px; }
+}

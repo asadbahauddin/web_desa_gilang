@@ -1,0 +1,127 @@
+/* ==========================================
+   HERO BERITA
+========================================== */
+
+.berita-hero{
+    min-height:420px;
+    display:flex;
+    align-items:center;
+
+    background:
+    linear-gradient(rgba(21,52,37,.78),
+    rgba(21,52,37,.78)),
+    url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=80")
+    center/cover no-repeat;
+}
+
+.page-hero__content{
+    padding-top:130px;
+    padding-bottom:90px;
+    max-width:760px;
+}
+
+.page-hero__title{
+    color:#fff;
+}
+
+.page-hero__desc{
+    color:rgba(255,255,255,.9);
+}
+
+.breadcrumb{
+    margin-top:20px;
+}
+
+.breadcrumb a,
+.breadcrumb span{
+    color:rgba(255,255,255,.85);
+}
+
+
+/* ==========================================
+   SECTION BERITA
+========================================== */
+
+.section{
+    padding:90px 0;
+}
+
+
+/* ==========================================
+   CARD BERITA
+========================================== */
+
+.card-berita{
+    background:#fff;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+    transition:.35s;
+}
+
+.card-berita:hover{
+    transform:translateY(-8px);
+}
+
+.card-berita__img-wrap{
+    display:block;
+    position:relative;
+}
+
+.card-berita__img-wrap img{
+    width:100%;
+    aspect-ratio:16/10;
+    object-fit:cover;
+}
+
+.card-berita__category{
+    position:absolute;
+    top:18px;
+    left:18px;
+
+    background:#fff;
+    color:var(--color-forest);
+
+    padding:8px 14px;
+    border-radius:100px;
+    font-size:.78rem;
+    font-weight:700;
+}
+
+.card-berita__body{
+    padding:24px;
+}
+
+.card-berita__title{
+    margin:14px 0;
+    font-size:1.18rem;
+    line-height:1.5;
+}
+
+.card-berita__excerpt{
+    color:var(--color-text-muted);
+    line-height:1.8;
+}
+
+.card-berita__link{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:20px;
+
+    color:var(--color-leaf-dark);
+    font-weight:700;
+}
+
+.card-berita__link svg{
+    width:16px;
+}
+
+
+/* ==========================================
+   PAGINATION
+========================================== */
+
+.pagination{
+    margin-top:70px;
+}

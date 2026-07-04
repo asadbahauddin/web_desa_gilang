@@ -1,0 +1,632 @@
+/* =========================================================================
+   LOGIN — Panel Admin Desa Gilang
+   Konsep: buku ledger desa & sawah berundak (terraced rice fields).
+   Sisi kiri = "tanah" (sawah, stempel resmi), sisi kanan = "kertas ledger".
+   ========================================================================= */
+
+:root{
+  /* --- palette: tanah & kertas (earth & paper) --- */
+  --ink:          #1F2A22;   /* teks utama, hampir hitam-hijau */
+  --ink-soft:     #4A5A4E;   /* teks sekunder */
+  --paper:        #F6F1E6;   /* latar kertas hangat */
+  --paper-card:   #FFFCF6;   /* kartu/kotak lebih terang dari paper */
+  --sawah:        #2C4A30;   /* hijau sawah, warna brand utama */
+  --sawah-deep:   #16271A;   /* hijau sangat gelap untuk gradient */
+  --sawah-light:  #4E7A53;   /* hijau terang untuk hover/aksen */
+  --clay:         #BD6B33;   /* terakota, aksen error/peringatan hangat */
+  --brass:        #B68A45;   /* kuning kuningan, untuk "stempel resmi" */
+  --brass-soft:   rgba(182,138,69,.35);
+  --line:         #E4DACB;  /* garis halus di atas kertas */
+  --line-strong:  #D8CBB2;
+  --danger:       #B23A2E;
+  --danger-bg:    #FBEAE6;
+  --success:      #2E6B3E;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  --shadow-soft: 0 1px 2px rgba(31,42,34,.04), 0 8px 24px -8px rgba(31,42,34,.12);
+  --shadow-lift: 0 4px 10px rgba(31,42,34,.06), 0 20px 40px -16px rgba(31,42,34,.22);
+
+  --ease-out: cubic-bezier(.16,1,.3,1);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Reset ringan — scoped agar aman ditumpuk di atas style.css global      */
+/* ---------------------------------------------------------------------- */
+:where(.login-page, .login-page *){
+  box-sizing: border-box;
+}
+
+.login-page{
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+  background: var(--paper);
+  font-family: var(--font-body);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.login-page :focus-visible{
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* =========================================================================
+   PANEL KIRI — identitas desa, dibalut tekstur sawah berundak
+   ========================================================================= */
+.login-brand{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px 56px 44px;
+  color: #F3EEE0;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(120% 90% at 14% 8%, rgba(255,255,255,.07), transparent 55%),
+    linear-gradient(165deg, var(--sawah) 0%, var(--sawah-deep) 78%);
+  animation: brand-rise .7s var(--ease-out) both;
+}
+
+/* kontur "sawah berundak" — garis tipis berlapis menyerupai terasering */
+.login-brand::before{
+  content:"";
+  position:absolute;
+  inset: -10% -20% -28% -20%;
+  background-image: repeating-linear-gradient(
+    178deg,
+    rgba(243,238,224,.07) 0px,
+    rgba(243,238,224,.07) 1.5px,
+    transparent 1.5px,
+    transparent 46px
+  );
+  transform: skewY(-7deg);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* tekstur butiran kertas/tinta halus */
+.login-brand::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.login-brand > *{ position: relative; z-index: 1; }
+
+.login-brand__top{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.login-brand__logo{
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  padding: 6px;
+  box-shadow: 0 0 0 1px rgba(243,238,224,.18);
+}
+
+.login-brand__title{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: .01em;
+}
+
+/* "stempel" resmi — lencana bundar yang sedikit dimiringkan, seperti cap dinas */
+.login-brand__seal{
+  position: absolute;
+  top: 54px;
+  right: 50px;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--brass-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-9deg);
+  z-index: 1;
+  animation: seal-in .8s .25s var(--ease-out) both;
+}
+.login-brand__seal::before{
+  content:"";
+  position:absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--brass-soft);
+}
+.login-brand__seal span{
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .18em;
+  color: var(--brass);
+  text-align: center;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.login-brand__quote{
+  max-width: 360px;
+  margin-top: auto;
+  padding-top: 30px;
+}
+
+.login-brand__quote p{
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.42;
+  font-weight: 500;
+  font-optical-sizing: auto;
+  color: #F8F4E8;
+  margin: 0 0 16px;
+  padding-left: 4px;
+}
+
+.login-brand__quote p::before{
+  content: "\201C";
+  display: block;
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 0;
+  color: var(--brass);
+  margin-bottom: 14px;
+  opacity: .85;
+}
+
+.login-brand__quote span{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(243,238,224,.65);
+}
+.login-brand__quote span::before{
+  content:"";
+  width: 22px;
+  height: 1px;
+  background: var(--brass);
+  display: inline-block;
+}
+
+.login-brand__back{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 36px;
+  width: fit-content;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(243,238,224,.78);
+  text-decoration: none;
+  padding: 8px 4px;
+  transition: color .2s var(--ease-out), gap .2s var(--ease-out);
+}
+.login-brand__back svg{ width: 15px; height: 15px; transition: transform .2s var(--ease-out); }
+.login-brand__back:hover{ color: #fff; gap: 11px; }
+.login-brand__back:hover svg{ transform: translateX(-2px); }
+
+/* =========================================================================
+   PANEL KANAN — form masuk, di atas "kertas"
+   ========================================================================= */
+.login-form-panel{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: var(--paper);
+  position: relative;
+}
+
+.login-form-box{
+  width: 100%;
+  max-width: 392px;
+  animation: form-rise .65s .1s var(--ease-out) both;
+}
+
+.eyebrow{
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sawah-light);
+  margin-bottom: 16px;
+}
+.eyebrow::before{
+  content:"";
+  width: 16px;
+  height: 1.5px;
+  background: var(--brass);
+  display: inline-block;
+}
+
+.login-form-box h1{
+  font-family: var(--font-display);
+  font-size: 33px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  margin: 0 0 10px;
+  line-height: 1.18;
+}
+
+.text-muted{
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0 0 30px;
+}
+
+/* --- pesan error global --- */
+.login-error{
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid rgba(178,58,46,.18);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  animation: shake .4s var(--ease-out);
+}
+.login-error.is-visible{ display: flex; }
+.login-error::before{
+  content:"";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  background: var(--danger);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 1 21h22L12 2zm0 6v6m0 4h.01' stroke='black' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 1 21h22L12 2zm0 6v6m0 4h.01' stroke='black' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* --- form fields --- */
+.form-group{
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.form-group label{
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 7px;
+  letter-spacing: .01em;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="text"]{
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--ink);
+  background: var(--paper-card);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 12.5px 14px;
+  transition: border-color .18s var(--ease-out), box-shadow .18s var(--ease-out), background .18s var(--ease-out);
+}
+
+.form-group input::placeholder{ color: #A39C8A; }
+
+.form-group input:hover{ border-color: #C9BC9E; }
+
+.form-group input:focus{
+  outline: none;
+  border-color: var(--sawah-light);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(78,122,83,.13);
+}
+
+.form-group input:invalid:not(:placeholder-shown):not(:focus){
+  border-color: var(--clay);
+}
+
+.form-group--password{ position: relative; }
+
+.password-toggle{
+  position: absolute;
+  right: 6px;
+  top: 31px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9C9277;
+  cursor: pointer;
+  transition: color .18s var(--ease-out), background .18s var(--ease-out);
+}
+.password-toggle svg{ width: 19px; height: 19px; }
+.password-toggle:hover{ color: var(--sawah); background: rgba(44,74,48,.07); }
+.password-toggle.is-active{ color: var(--sawah); }
+/* coretan "tersembunyi" pada ikon mata saat sandi disembunyikan */
+.password-toggle .eye-off-line{
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  transition: stroke-dashoffset .2s var(--ease-out);
+}
+.password-toggle.is-active .eye-off-line{ stroke-dashoffset: 0; }
+
+/* =========================================================================
+   CAPTCHA — disajikan seperti "kupon stub" buku ledger desa
+   ========================================================================= */
+.form-group--captcha label{ margin-bottom: 9px; }
+
+.captcha-stub{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--paper-card);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px;
+  transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+}
+
+/* lubang perforasi kiri/kanan, seperti sobekan tiket */
+.captcha-stub::before,
+.captcha-stub::after{
+  content:"";
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--paper);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.captcha-stub::before{ left: -8px; }
+.captcha-stub::after{ right: -8px; }
+
+.captcha-stub.is-shaking{ animation: shake .4s var(--ease-out); border-color: var(--clay); }
+.captcha-stub.is-valid{ border-color: var(--success); }
+
+.captcha-canvas-wrap{
+  flex: none;
+  position: relative;
+  border-radius: 7px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  background: var(--paper);
+  cursor: pointer;
+}
+
+#captchaCanvas{ display: block; }
+
+.captcha-refresh{
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--sawah);
+  cursor: pointer;
+  transition: transform .35s var(--ease-out), background .18s var(--ease-out), border-color .18s var(--ease-out);
+}
+.captcha-refresh svg{ width: 17px; height: 17px; }
+.captcha-refresh:hover{ background: #fff; border-color: var(--sawah-light); }
+.captcha-refresh:active svg,
+.captcha-refresh.is-spinning svg{ transform: rotate(180deg); }
+.captcha-refresh svg{ transition: transform .4s var(--ease-out); }
+
+.captcha-input-wrap{ flex: 1; min-width: 0; position: relative; }
+
+#captchaInput{
+  width: 100%;
+  font-family: var(--font-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  padding: 8px 30px 8px 10px;
+  min-width: 0;
+}
+#captchaInput::placeholder{
+  font-family: var(--font-body);
+  letter-spacing: normal;
+  text-transform: none;
+  color: #A39C8A;
+}
+#captchaInput:focus{ outline: none; }
+
+.captcha-check{
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%) scale(.6);
+  width: 18px;
+  height: 18px;
+  opacity: 0;
+  color: var(--success);
+  transition: opacity .2s var(--ease-out), transform .2s var(--ease-out);
+  pointer-events: none;
+}
+.captcha-stub.is-valid .captcha-check{ opacity: 1; transform: translateY(-50%) scale(1); }
+
+.captcha-hint{
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 7px;
+  opacity: .85;
+}
+.captcha-hint strong{ color: var(--sawah); font-weight: 600; }
+
+/* =========================================================================
+   TOMBOL & ELEMEN PENUTUP
+   ========================================================================= */
+.btn{
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: none;
+  transition: transform .15s var(--ease-out), box-shadow .2s var(--ease-out), background .18s var(--ease-out);
+}
+
+.btn--primary{
+  position: relative;
+  width: 100%;
+  padding: 13.5px 18px;
+  margin-top: 6px;
+  color: #F6F1E6;
+  background: linear-gradient(180deg, var(--sawah-light) 0%, var(--sawah) 100%);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.12);
+  letter-spacing: .01em;
+}
+.btn--primary::after{
+  /* garis kuningan tipis di tepi bawah, sentuhan "resmi" */
+  content:"";
+  position: absolute;
+  left: 14px; right: 14px; bottom: 6px;
+  height: 1px;
+  background: rgba(182,138,69,.55);
+  opacity: 0;
+  transition: opacity .2s var(--ease-out);
+}
+.btn--primary:hover{ transform: translateY(-1px); box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255,255,255,.14); }
+.btn--primary:hover::after{ opacity: 1; }
+.btn--primary:active{ transform: translateY(0); }
+
+.btn--primary:disabled{
+  cursor: progress;
+  opacity: .82;
+  transform: none;
+}
+
+.btn--primary.is-loading{ color: transparent; }
+.btn--primary .btn-spinner{
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.btn--primary.is-loading .btn-spinner{ display: flex; }
+.btn-spinner span{
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(246,241,230,.35);
+  border-top-color: #F6F1E6;
+  animation: spin .7s linear infinite;
+}
+
+.login-helper{
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  background: rgba(182,138,69,.08);
+  border: 1px solid rgba(182,138,69,.22);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  margin-top: 22px;
+}
+.login-helper::before{
+  content: "DEMO";
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  color: var(--brass);
+  background: rgba(182,138,69,.16);
+  border-radius: 4px;
+  padding: 3px 6px;
+  margin-top: 1px;
+}
+
+/* =========================================================================
+   ANIMASI
+   ========================================================================= */
+@keyframes brand-rise{
+  from{ opacity: 0; transform: translateX(-10px); }
+  to{ opacity: 1; transform: translateX(0); }
+}
+@keyframes form-rise{
+  from{ opacity: 0; transform: translateY(10px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+@keyframes seal-in{
+  from{ opacity: 0; transform: rotate(-9deg) scale(.85); }
+  to{ opacity: 1; transform: rotate(-9deg) scale(1); }
+}
+@keyframes shake{
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce){
+  .login-page *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width: 980px){
+  .login-page{ grid-template-columns: 1fr; }
+  .login-brand{ padding: 40px 32px 64px; min-height: 320px; }
+  .login-brand__quote{ margin-top: 32px; }
+  .login-brand__seal{ top: 36px; right: 32px; width: 76px; height: 76px; }
+  .login-form-panel{ padding: 40px 24px 56px; }
+}
+
+@media (max-width: 480px){
+  .login-brand{ padding: 32px 22px 52px; }
+  .login-brand__quote p{ font-size: 21px; }
+  .login-form-box h1{ font-size: 27px; }
+  .captcha-stub{ flex-wrap: wrap; }
+  .captcha-canvas-wrap{ width: 100%; }
+  #captchaCanvas{ width: 100%; height: auto; }
+  .captcha-input-wrap{ width: 100%; order: 3; }
+}

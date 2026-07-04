@@ -1,0 +1,239 @@
+/* ===================================================
+HERO
+=================================================== */
+
+.aparatur-hero{
+    min-height:75vh;
+    display:flex;
+    align-items:center;
+    background:
+    linear-gradient(
+    rgba(15,31,21,.75),
+    rgba(15,31,21,.85)
+    ),
+    url("https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1800");
+
+    background-size:cover;
+    background-position:center;
+}
+
+.page-hero__content{
+    max-width:700px;
+    padding-top:120px;
+}
+
+.page-hero__title{
+    color:white;
+}
+
+.page-hero__desc{
+    color:rgba(255,255,255,.85);
+    margin-top:20px;
+}
+
+
+/* ===================================================
+STATISTIK
+=================================================== */
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:25px;
+}
+
+.stat-card{
+    background:white;
+    padding:40px;
+    border-radius:25px;
+    text-align:center;
+    box-shadow:var(--shadow-soft);
+    transition:.3s;
+}
+
+.stat-card:hover{
+    transform:translateY(-8px);
+    box-shadow:var(--shadow-deep);
+}
+
+.stat-card h2{
+    color:var(--color-leaf);
+    margin-bottom:10px;
+}
+
+
+/* ===================================================
+KEPALA DESA
+=================================================== */
+
+.kepala-card{
+    margin-top:50px;
+    display:grid;
+    grid-template-columns:350px 1fr;
+    gap:60px;
+    align-items:center;
+}
+
+.kepala-card img{
+    width:100%;
+    height:450px;
+    object-fit:cover;
+    border-radius:35px;
+    box-shadow:var(--shadow-deep);
+}
+
+.kepala-card p{
+    margin:25px 0;
+    color:var(--color-text-muted);
+}
+
+
+/* ===================================================
+SEARCH
+=================================================== */
+
+.search-aparatur{
+    width:300px;
+    padding:16px 22px;
+    border:none;
+    border-radius:100px;
+    background:white;
+    box-shadow:var(--shadow-soft);
+    font-family:var(--font-body);
+}
+
+.search-aparatur:focus{
+    outline:none;
+}
+
+
+/* ===================================================
+GRID APARATUR
+=================================================== */
+
+.aparatur-grid{
+    margin-top:50px;
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:30px;
+}
+
+.aparatur-card{
+    background:white;
+    padding:35px 25px;
+    text-align:center;
+    border-radius:30px;
+    box-shadow:var(--shadow-soft);
+
+    transition:.4s;
+}
+
+.aparatur-card:hover{
+    transform:translateY(-10px);
+    box-shadow:var(--shadow-deep);
+}
+
+.aparatur-card img{
+    width:140px;
+    height:140px;
+    object-fit:cover;
+    border-radius:50%;
+    margin:auto;
+    margin-bottom:25px;
+}
+
+.aparatur-card h3{
+    margin-bottom:10px;
+}
+
+.aparatur-card span{
+    color:var(--color-text-muted);
+    font-size:.95rem;
+}
+
+
+/* ===================================================
+CTA
+=================================================== */
+
+.cta-section{
+    background:var(--color-forest);
+    text-align:center;
+    padding:120px 0;
+}
+
+.cta-section h2{
+    color:white;
+    margin-bottom:20px;
+}
+
+.cta-section p{
+    color:rgba(255,255,255,.8);
+    margin-bottom:30px;
+}
+
+
+/* ===================================================
+RESPONSIVE
+=================================================== */
+
+@media(max-width:992px){
+
+.stats-grid{
+grid-template-columns:repeat(2,1fr);
+}
+
+.aparatur-grid{
+grid-template-columns:repeat(2,1fr);
+}
+
+.kepala-card{
+grid-template-columns:1fr;
+}
+
+}
+
+
+@media(max-width:768px){
+
+.search-aparatur{
+width:100%;
+margin-top:25px;
+}
+
+.aparatur-grid{
+grid-template-columns:1fr;
+}
+
+.stats-grid{
+grid-template-columns:1fr;
+}
+
+.kepala-card img{
+height:380px;
+}
+
+}
+
+
+@media(max-width:576px){
+
+.page-hero__title{
+font-size:2.3rem;
+}
+
+.kepala-card{
+gap:35px;
+}
+
+.kepala-card img{
+height:320px;
+}
+
+.aparatur-card img{
+width:120px;
+height:120px;
+}
+
+}

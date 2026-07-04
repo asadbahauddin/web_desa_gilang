@@ -1,0 +1,152 @@
+/* ===== HERO ===== */
+
+.page-hero{
+position:relative;
+min-height:70vh;
+display:flex;
+align-items:center;
+background:
+linear-gradient(
+rgba(20,40,20,.7),
+rgba(20,40,20,.8)
+),
+url('../assets/default/sejarah-default.jpg');
+background-size:cover;
+background-position:center;
+}
+
+.page-hero__content{
+position:relative;
+z-index:2;
+max-width:700px;
+padding-top:120px;
+}
+
+.page-hero__title{
+color:white;
+margin-bottom:20px;
+}
+
+.page-hero__desc{
+color:rgba(255,255,255,.85);
+font-size:1.1rem;
+}
+
+.breadcrumb{
+margin-top:30px;
+display:flex;
+gap:10px;
+color:white;
+font-size:.9rem;
+}
+
+.breadcrumb a{
+color:var(--color-harvest);
+}
+
+/* sejarah */
+
+.history-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:60px;
+align-items:center;
+margin-top:50px;
+}
+
+.history-image img{
+border-radius:30px;
+box-shadow:var(--shadow-deep);
+}
+
+/* timeline */
+
+.timeline{
+margin-top:60px;
+border-left:4px solid var(--color-leaf);
+}
+
+.timeline-item{
+padding-left:40px;
+margin-bottom:50px;
+position:relative;
+}
+
+.timeline-item::before{
+content:'';
+width:18px;
+height:18px;
+background:var(--color-harvest);
+border-radius:50%;
+position:absolute;
+left:-11px;
+top:5px;
+}
+
+.timeline-year{
+font-family:var(--font-display);
+font-size:2rem;
+color:var(--color-leaf-dark);
+margin-bottom:10px;
+}
+
+/* statistik */
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:25px;
+}
+
+.stat-card{
+background:white;
+padding:40px;
+border-radius:25px;
+text-align:center;
+box-shadow:var(--shadow-soft);
+transition:.3s;
+}
+
+.stat-card:hover{
+transform:translateY(-8px);
+box-shadow:var(--shadow-deep);
+}
+
+.stat-card h2{
+color:var(--color-leaf);
+}
+
+/* cta */
+
+.cta-section{
+background:var(--color-forest);
+padding:100px 0;
+text-align:center;
+color:white;
+}
+
+.cta-section h2{
+color:white;
+margin-bottom:20px;
+}
+
+.cta-section p{
+color:rgba(255,255,255,.8);
+margin-bottom:30px;
+}
+
+.sejarah-hero{
+    position: relative;
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    background:
+    linear-gradient(
+        rgba(15,31,21,.65),
+        rgba(15,31,21,.85)
+    ),
+    url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1800");
+
+    background-size: cover;
+    background-position: center;
+}

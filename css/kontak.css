@@ -1,0 +1,223 @@
+/* ==========================================================================
+   KONTAK.CSS — Halaman Kontak
+   ========================================================================== */
+
+.kontak-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ---- Kartu info kontak ---- */
+.kontak-info {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kontak-info__item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background-color: var(--color-white);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-soft);
+}
+
+.kontak-info__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--color-sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kontak-info__icon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-forest);
+}
+
+.kontak-info__label {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.kontak-info__value {
+  font-weight: 600;
+  color: var(--color-forest);
+  font-size: 0.96rem;
+}
+
+/* ---- Form kontak ---- */
+.kontak-form {
+  background-color: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  box-shadow: var(--shadow-soft);
+}
+
+.kontak-form h3 {
+  margin-bottom: 6px;
+}
+
+.kontak-form__hint {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-forest);
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 0.94rem;
+  color: var(--color-text);
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-leaf);
+  background-color: var(--color-white);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.kontak-form button[type="submit"] {
+  width: 100%;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.form-success {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--color-sage);
+  color: var(--color-forest);
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.form-success.is-visible {
+  display: flex;
+}
+
+.form-success svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* ---- Peta ---- */
+.kontak-map {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  height: 100%;
+  min-height: 520px;
+}
+
+.kontak-map iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  border: 0;
+  display: block;
+}
+
+/* ---- Jam pelayanan mini-table ---- */
+.jam-pelayanan {
+  background-color: var(--color-forest);
+  color: var(--color-white);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.jam-pelayanan__title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-harvest);
+  margin-bottom: 14px;
+  display: block;
+}
+
+.jam-pelayanan__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  font-size: 0.9rem;
+}
+
+.jam-pelayanan__row:last-child { border-bottom: none; }
+
+.jam-pelayanan__row span:last-child {
+  color: rgba(255,255,255,0.75);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+/* ---- Responsif ---- */
+@media (max-width: 900px) {
+  .kontak-grid { grid-template-columns: 1fr; }
+  .kontak-map { min-height: 360px; }
+  .kontak-map iframe { min-height: 360px; }
+}
+
+/* Hero Kontak */
+.kontak-hero{
+    position: relative;
+    padding: 160px 0 90px;
+    background:
+        linear-gradient(rgba(32,56,42,.55), rgba(32,56,42,.55)),
+        url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80")
+        center/cover no-repeat;
+    color:#fff;
+}
+
+.kontak-hero .page-header__title{
+    color:#fff;
+}
+
+.kontak-hero .page-header__desc{
+    color:rgba(255,255,255,.9);
+}
+
+.kontak-hero .breadcrumb a,
+.kontak-hero .breadcrumb span{
+    color:#fff;
+}

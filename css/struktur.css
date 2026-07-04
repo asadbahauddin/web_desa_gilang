@@ -1,0 +1,105 @@
+/* HERO */
+
+.struktur-hero{
+    min-height:75vh;
+    display:flex;
+    align-items:center;
+
+    background:
+    linear-gradient(
+    rgba(15,31,21,.35),
+    rgba(15,31,21,.45)
+    ),
+    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1800");
+
+    background-size:cover;
+    background-position:center;
+}
+
+
+/* TREE */
+
+.org-tree{
+margin-top:70px;
+text-align:center;
+}
+
+.org-level{
+display:flex;
+justify-content:center;
+margin-bottom:50px;
+}
+
+.line{
+width:4px;
+height:70px;
+background:var(--color-leaf);
+margin:auto;
+}
+
+.org-row{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:30px;
+margin-top:50px;
+}
+
+
+/* CARD */
+
+.org-card{
+background:white;
+padding:35px 25px;
+border-radius:30px;
+box-shadow:var(--shadow-soft);
+transition:.3s;
+}
+
+.org-card:hover{
+transform:translateY(-10px);
+box-shadow:var(--shadow-deep);
+}
+
+.org-card img{
+width:110px;
+height:110px;
+border-radius:50%;
+object-fit:cover;
+margin:auto;
+margin-bottom:20px;
+}
+
+.org-card p{
+color:var(--color-text-muted);
+}
+
+.kepala{
+max-width:350px;
+}
+
+.sekdes{
+max-width:320px;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width:992px){
+
+.org-row{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+@media(max-width:768px){
+
+.org-row{
+grid-template-columns:1fr;
+}
+
+.line{
+height:40px;
+}
+
+}

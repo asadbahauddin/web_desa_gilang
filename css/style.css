@@ -1,0 +1,803 @@
+/* ==========================================================
+   STYLE.CSS
+   Global Style
+   Website Desa Gilang
+========================================================== */
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+*,
+*::before,
+*::after{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:"Plus Jakarta Sans",sans-serif;
+    font-size:16px;
+    color:var(--color-text);
+    background:#fff;
+    line-height:1.7;
+    overflow-x:hidden;
+}
+
+img{
+    max-width:100%;
+    display:block;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+button,
+input,
+textarea,
+select{
+    font:inherit;
+    border:none;
+    outline:none;
+    background:none;
+}
+
+ul{
+    list-style:none;
+}
+
+/* ==========================================================
+   ROOT
+========================================================== */
+
+:root{
+
+/* ========= FONT ========= */
+
+--font-display:"Fraunces",serif;
+--font-body:"Plus Jakarta Sans",sans-serif;
+--font-mono:"IBM Plex Mono",monospace;
+
+
+/* ========= WARNA ========= */
+
+--color-white:#ffffff;
+
+--color-black:#000000;
+
+--color-text:#374151;
+--color-text-muted:#6b7280;
+
+--color-forest:#163c2b;
+
+--color-leaf:#2d6a4f;
+
+--color-leaf-dark:#1b4332;
+
+--color-sage:#b7d6c1;
+
+--color-harvest:#e9c46a;
+
+--color-cream:#f8f6ef;
+
+--color-border:#e5e7eb;
+
+
+/* ========= SHADOW ========= */
+
+--shadow-soft:
+0 10px 30px rgba(0,0,0,.06);
+
+--shadow-deep:
+0 18px 45px rgba(0,0,0,.12);
+
+
+/* ========= RADIUS ========= */
+
+--radius-card:24px;
+--radius-lg:22px;
+--radius-md:16px;
+--radius-sm:10px;
+
+
+/* ========= TRANSITION ========= */
+
+--ease:cubic-bezier(.4,0,.2,1);
+
+}
+/* ==========================================================
+   CONTAINER
+========================================================== */
+
+.container{
+    width:min(1200px,92%);
+    margin:auto;
+}
+
+.container-sm{
+    width:min(900px,92%);
+    margin:auto;
+}
+
+/* ==========================================================
+   SECTION
+========================================================== */
+
+.section{
+    padding:90px 0;
+}
+
+.section--alt{
+    background:var(--color-cream);
+}
+
+/* ==========================================================
+   TYPOGRAPHY
+========================================================== */
+
+h1,h2,h3,h4,h5,h6{
+    font-family:var(--font-display);
+    color:var(--color-forest);
+    line-height:1.2;
+    font-weight:700;
+}
+
+h1{
+    font-size:clamp(2.8rem,5vw,4.5rem);
+}
+
+h2{
+    font-size:clamp(2rem,4vw,3rem);
+}
+
+h3{
+    font-size:1.6rem;
+}
+
+h4{
+    font-size:1.3rem;
+}
+
+p{
+    color:var(--color-text);
+    line-height:1.8;
+}
+
+small{
+    color:var(--color-text-muted);
+}
+
+.font-mono{
+    font-family:var(--font-mono);
+}
+
+/* ==========================================================
+   EYEBROW
+========================================================== */
+
+.eyebrow{
+    display:inline-block;
+    font-size:.78rem;
+    font-family:var(--font-mono);
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--color-leaf);
+    margin-bottom:14px;
+}
+
+/* ==========================================================
+   HEADING
+========================================================== */
+
+.heading-leaf{
+    position:relative;
+    display:inline-block;
+    margin-bottom:18px;
+}
+
+.heading-leaf::after{
+
+    content:"";
+
+    width:70px;
+    height:4px;
+
+    display:block;
+
+    margin-top:18px;
+
+    border-radius:999px;
+
+    background:var(--color-harvest);
+
+}
+
+/* ==========================================================
+   BUTTON
+========================================================== */
+
+.btn{
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    padding:14px 28px;
+
+    border-radius:999px;
+
+    cursor:pointer;
+
+    font-weight:700;
+
+    transition:.35s var(--ease);
+
+}
+
+.btn:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.btn--primary{
+
+    background:var(--color-leaf);
+
+    color:#fff;
+
+}
+
+.btn--primary:hover{
+
+    background:var(--color-leaf-dark);
+
+}
+
+.btn--outline{
+
+    border:2px solid rgba(255,255,255,.55);
+
+    color:#fff;
+
+}
+
+.btn--outline:hover{
+
+    background:#fff;
+
+    color:var(--color-forest);
+
+}
+
+.btn--ghost{
+
+    border:2px solid var(--color-leaf);
+
+    color:var(--color-leaf);
+
+}
+
+.btn--ghost:hover{
+
+    background:var(--color-leaf);
+
+    color:#fff;
+
+}
+
+/* ==========================================================
+   CARD
+========================================================== */
+
+.card{
+
+    background:#fff;
+
+    border-radius:24px;
+
+    box-shadow:var(--shadow-soft);
+
+    overflow:hidden;
+
+    transition:.35s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:var(--shadow-deep);
+
+}
+/* ==========================================================
+   SECTION HEADER
+========================================================== */
+
+.section__header{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+    gap:30px;
+    margin-bottom:55px;
+    flex-wrap:wrap;
+}
+
+.section__header-text{
+    max-width:650px;
+}
+
+/* ==========================================================
+   SKIP LINK
+========================================================== */
+
+.skip-link{
+
+    position:absolute;
+
+    top:-50px;
+    left:20px;
+
+    background:var(--color-leaf);
+
+    color:#fff;
+
+    padding:12px 20px;
+
+    border-radius:8px;
+
+    z-index:99999;
+
+    transition:.3s;
+
+}
+
+.skip-link:focus{
+
+    top:20px;
+
+}
+
+/* ==========================================================
+   TEXT
+========================================================== */
+
+.text-center{
+    text-align:center;
+}
+
+.text-right{
+    text-align:right;
+}
+
+.text-left{
+    text-align:left;
+}
+
+/* ==========================================================
+   MARGIN
+========================================================== */
+
+.mt-1{margin-top:10px;}
+.mt-2{margin-top:20px;}
+.mt-3{margin-top:30px;}
+.mt-4{margin-top:40px;}
+.mt-5{margin-top:50px;}
+
+.mb-1{margin-bottom:10px;}
+.mb-2{margin-bottom:20px;}
+.mb-3{margin-bottom:30px;}
+.mb-4{margin-bottom:40px;}
+.mb-5{margin-bottom:50px;}
+
+/* ==========================================================
+   DISPLAY
+========================================================== */
+
+.flex{
+    display:flex;
+}
+
+.grid{
+    display:grid;
+}
+
+.hidden{
+    display:none;
+}
+
+/* ==========================================================
+   IMAGE
+========================================================== */
+
+.img-cover{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+.img-rounded{
+
+    border-radius:20px;
+
+}
+
+/* ==========================================================
+   ANIMATION
+========================================================== */
+
+.fade-up{
+
+    opacity:0;
+
+    transform:translateY(40px);
+
+    transition:.6s ease;
+
+}
+
+.fade-up.show{
+
+    opacity:1;
+
+    transform:none;
+
+}
+
+.fade{
+
+    animation:fade .6s ease;
+
+}
+
+@keyframes fade{
+
+    from{
+
+        opacity:0;
+
+    }
+
+    to{
+
+        opacity:1;
+
+    }
+
+}
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:var(--color-leaf);
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f3f3f3;
+
+}
+
+/* ==========================================================
+   SELECTION
+========================================================== */
+
+::selection{
+
+    background:var(--color-leaf);
+
+    color:#fff;
+
+}
+/* ==========================================================
+   TABLE
+========================================================== */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,
+td{
+    padding:16px;
+    text-align:left;
+}
+
+th{
+    font-weight:700;
+    color:var(--color-forest);
+}
+
+tr:not(:last-child){
+    border-bottom:1px solid var(--color-border);
+}
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+input,
+textarea,
+select{
+
+    width:100%;
+
+    padding:14px 18px;
+
+    border:1px solid var(--color-border);
+
+    border-radius:12px;
+
+    background:#fff;
+
+    transition:.3s;
+
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+
+    border-color:var(--color-leaf);
+
+    box-shadow:0 0 0 4px rgba(45,106,79,.12);
+
+}
+
+textarea{
+
+    resize:vertical;
+
+}
+
+/* ==========================================================
+   BADGE
+========================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    padding:6px 14px;
+
+    border-radius:999px;
+
+    background:var(--color-sage);
+
+    color:var(--color-forest);
+
+    font-size:.78rem;
+
+    font-weight:700;
+
+}
+
+/* ==========================================================
+   BREADCRUMB
+========================================================== */
+
+.breadcrumb{
+
+    display:flex;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+
+    font-size:.9rem;
+
+}
+
+.breadcrumb a{
+
+    color:var(--color-leaf);
+
+}
+
+.breadcrumb span{
+
+    color:var(--color-text-muted);
+
+}
+
+/* ==========================================================
+   ALERT
+========================================================== */
+
+.alert{
+
+    padding:16px 20px;
+
+    border-radius:12px;
+
+    margin-bottom:20px;
+
+}
+
+.alert-success{
+
+    background:#dff7e8;
+
+    color:#166534;
+
+}
+
+.alert-danger{
+
+    background:#ffe5e5;
+
+    color:#b91c1c;
+
+}
+
+.alert-warning{
+
+    background:#fff6d8;
+
+    color:#92400e;
+
+}
+
+/* ==========================================================
+   LOADER
+========================================================== */
+
+.loader{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    border:4px solid #ddd;
+
+    border-top-color:var(--color-leaf);
+
+    animation:spin .7s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+/* ==========================================================
+   FOOTER SPACE
+========================================================== */
+
+main{
+
+    min-height:100vh;
+
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:992px){
+
+.container{
+
+width:94%;
+
+}
+
+.section{
+
+padding:70px 0;
+
+}
+
+h1{
+
+font-size:3rem;
+
+}
+
+h2{
+
+font-size:2.3rem;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.container{
+
+width:92%;
+
+}
+
+.section{
+
+padding:60px 0;
+
+}
+
+.btn{
+
+width:100%;
+
+justify-content:center;
+
+}
+
+.section__header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+}
+
+@media(max-width:576px){
+
+body{
+
+font-size:15px;
+
+}
+
+h1{
+
+font-size:2.3rem;
+
+}
+
+h2{
+
+font-size:1.8rem;
+
+}
+
+h3{
+
+font-size:1.3rem;
+
+}
+
+}
+
+/* ==========================================================
+   END
+========================================================== */
